@@ -1,0 +1,970 @@
+{
+  "schema_version": 7,
+  "skill_version": "7.5.15",
+  "operation_mode_router": {
+    "resolved_before_any_local_hermes_read": true,
+    "uncertainty_defaults_to": "protected_acceptance",
+    "modes": {
+      "new_build": {
+        "requires": [
+          "no_existing_assistant_in_target_scope"
+        ]
+      },
+      "authorized_incremental": {
+        "requires": [
+          "exact_existing_target_named",
+          "read_scope_explicitly_authorized"
+        ]
+      },
+      "protected_acceptance": {
+        "triggers_any": [
+          "user_says_do_not_touch_existing_assistant",
+          "test_or_audit_on_machine_with_existing_assistant",
+          "target_profile_or_hermes_root_uncertain"
+        ],
+        "production_root_read_scope": []
+      }
+    }
+  },
+  "step_router": {
+    "step_0_mode": [
+      "base_flow",
+      "novice_guidance",
+      "operation_mode_router",
+      "acceptance_isolation",
+      "incremental_detection"
+    ],
+    "step_1_runtime": [
+      "novice_guidance",
+      "platform_gate",
+      "cloud_qr",
+      "cloud_service"
+    ],
+    "step_2_hermes": [
+      "novice_guidance",
+      "profile_lifecycle",
+      "local_service_lifecycle",
+      "platform_gate",
+      "conversation_first_handoff",
+      "execution_boundary"
+    ],
+    "step_3_model": [
+      "novice_guidance",
+      "credential_provenance",
+      "model_switch",
+      "conversation_first_handoff",
+      "execution_boundary"
+    ],
+    "step_4_weixin": [
+      "novice_guidance",
+      "execution_boundary",
+      "conversation_first_handoff",
+      "setup_supervision",
+      "weixin_access",
+      "cloud_cutover"
+    ],
+    "step_5_persona_acceptance": [
+      "novice_guidance",
+      "base_completion",
+      "quality_acceptance",
+      "completion_states",
+      "secret_lifecycle"
+    ],
+    "optional_after_base": [
+      "novice_guidance",
+      "optional_capability_lifecycle",
+      "optional_capability_router",
+      "optional_capability_runtime",
+      "persistent_memory_verification",
+      "knowledge_revoke",
+      "model_switch"
+    ]
+  },
+  "base_flow": {
+    "user_visible_steps": [
+      "select_local_or_cloud_runtime",
+      "check_reuse_or_install_hermes_on_selected_runtime",
+      "check_reuse_or_configure_model_in_same_profile",
+      "connect_weixin_to_same_profile",
+      "write_soul_and_complete_real_chat_acceptance"
+    ],
+    "optional_capabilities_prompted_before_base_completion": false,
+    "internal_chat_safety_baseline_is_user_visible_optional_step": false,
+    "same_profile_required_from_step_2_through_step_5": true
+  },
+  "novice_guidance": {
+    "applies_to_every_user_visible_step": true,
+    "assume_user_knows_technical_terms": false,
+    "plain_language_before_product_or_permission": true,
+    "each_new_step_explains": [
+      "user_outcome",
+      "why_now",
+      "agent_action",
+      "single_user_action",
+      "visible_success_signal"
+    ],
+    "choice_consequences_before_question": true,
+    "recommendation_before_single_decision": true,
+    "progress_line_alone_is_sufficient": false,
+    "dependency_installation_before_capability_and_channel_selection": false,
+    "unknown_user_state_must_not_be_guessed": true,
+    "new_session_prompt_explains_once_always_cancel": true,
+    "new_session_once_is_recommended": true,
+    "gateway_restart_invalidates_pending_new_session_confirmation": true
+  },
+  "base_completion": {
+    "required": [
+      "runtime_selected",
+      "hermes_healthy",
+      "primary_model_chinese_reply",
+      "weixin_round_trip",
+      "persona_verified",
+      "weixin_access_control",
+      "execution_boundary_verified"
+    ],
+    "optional": [
+      "web_search",
+      "persistent_memory",
+      "vision",
+      "knowledge_base",
+      "coding_agent",
+      "scheduled_push"
+    ]
+  },
+  "optional_capability_lifecycle": {
+    "prompt_only_after_base_completion": true,
+    "not_part_of_runtime_selection_question": [
+      "knowledge_base",
+      "obsidian",
+      "coding_agent",
+      "codex",
+      "web_search",
+      "persistent_memory",
+      "daily_automation",
+      "scheduled_push"
+    ],
+    "post_base_upgrade_menu_required": true,
+    "primary_upgrade_menu": [
+      "knowledge_base",
+      "coding_agent",
+      "daily_automation"
+    ],
+    "each_menu_item_explains": [
+      "user_outcome",
+      "runtime_compatibility",
+      "minimum_user_action",
+      "permission_or_cost_boundary"
+    ],
+    "daily_automation_is_formal_optional": true,
+    "existing_assistant_target_uses_user_facing_name_first": true,
+    "target_identity_and_read_authorization_are_separate_questions": true,
+    "explicit_early_requirement_may_inform_runtime_explanation": true,
+    "baseline_high_risk_tools_remain_disabled_until_selected": true,
+    "one_capability_at_a_time": true,
+    "each_capability_requires": [
+      "scoped_read_only_detection",
+      "current_official_facts_verified",
+      "user_selects_after_comparison",
+      "least_privilege_configuration",
+      "real_success_test",
+      "error_test",
+      "boundary_negative_test",
+      "rollback_without_breaking_base"
+    ],
+    "incompatible_runtime_requires_separate_migration_or_sync_review": true,
+    "optional_failure_must_not_break_base_assistant": true
+  },
+  "optional_capability_router": {
+    "channel_selection_precedes_external_detection": true,
+    "dependency_installation_before_channel_selection": false,
+    "shared_availability_branches": [
+      "already_has",
+      "does_not_have",
+      "uncertain"
+    ],
+    "knowledge_base": {
+      "initial_menu": [
+        "existing_obsidian",
+        "existing_feishu",
+        "existing_local_folder",
+        "no_existing_knowledge_base",
+        "uncertain_or_other"
+      ],
+      "existing_path_reuses_before_installing": true,
+      "missing_path_offers_new_local_markdown_or_feishu": true,
+      "uncertain_path_asks_where_materials_are_edited_without_scanning": true,
+      "docker_explained_only_after_local_files_selected": true,
+      "docker_is_not_a_knowledge_base": true,
+      "feishu_read_only_scope_is_not_single_document_isolation": true,
+      "feishu_broader_scope_requires_local_resource_allowlist": true,
+      "feishu_app_setup_is_agent_operated_after_user_login": true,
+      "feishu_login_does_not_equal_dedicated_app_ready": true,
+      "feishu_cli_checked_only_after_feishu_selected": true,
+      "feishu_cli_availability_branches": [
+        "compatible_existing",
+        "missing",
+        "uncertain"
+      ],
+      "external_model_content_transfer_requires_separate_disclosure_and_consent": true,
+      "unauthorized_document_boundary_test_rejects_before_network": true
+    },
+    "coding_agent": {
+      "initial_menu": [
+        "existing_codex",
+        "existing_claude_code",
+        "existing_opencode",
+        "has_code_but_tool_unknown",
+        "no_tool_or_project",
+        "uncertain_or_other"
+      ],
+      "selected_tool_checked_before_other_tools": true,
+      "selected_tool_availability_branches": [
+        "compatible_existing",
+        "installed_but_cannot_start",
+        "missing",
+        "uncertain"
+      ],
+      "missing_tool_requires_official_comparison_before_install": true,
+      "repair_or_upgrade_requires_user_consent": true,
+      "missing_project_offers_isolated_demo_or_pause": true,
+      "project_scope_selected_before_file_access": true,
+      "cross_device_requires_separate_bridge_review": true
+    },
+    "daily_automation": {
+      "initial_menu": [
+        "ai_digest",
+        "weather_digest",
+        "reminder",
+        "fixed_task",
+        "uncertain_or_other"
+      ],
+      "existing_source_or_task_reused_before_new_purchase": true,
+      "missing_source_requires_official_comparison": true,
+      "content_selected_before_city_time_or_frequency": true,
+      "manual_delivery_test_before_schedule": true
+    }
+  },
+  "optional_capability_runtime": {
+    "elicitation_prompts_echo_unvalidated_tool_input": false,
+    "elicitation_accept_action_allows_empty_content": true,
+    "mcp_add_requires_trusted_tty_for_enable_prompt": true,
+    "mcp_add_exact_tool_inventory_verified_before_accept": true,
+    "base_runtime_binding": {
+      "reuse_exact_hermes_executable": true,
+      "reuse_exact_hermes_root": true,
+      "reuse_exact_profile": true,
+      "rediscover_global_path_forbidden": true,
+      "capability_preflight_required_before_write": true,
+      "preflight_failure_requires_upgrade_consent_or_pause": true
+    },
+    "knowledge_base": {
+      "local_executor": "scripts/scoped_knowledge_mcp.py",
+      "missing_knowledge_base_initializer": "scripts/scoped_knowledge_mcp.py --initialize-only",
+      "missing_knowledge_base_initialization_is_exclusive": true,
+      "default_mode": "read_only",
+      "generic_file_or_terminal_exposed": false,
+      "read_requires_per_action_model_transfer_elicitation": true,
+      "write_requires_per_action_elicitation": true,
+      "allowed_suffixes": [
+        ".md",
+        ".txt"
+      ],
+      "path_traversal_and_symlinks_rejected": true,
+      "optimistic_concurrency_sha256_required": true,
+      "state_directory_owner_and_mode_verified": true,
+      "writes_are_recoverable": true,
+      "delete_tool_exposed": false
+    },
+    "feishu": {
+      "executor": "scripts/scoped_feishu_mcp.py",
+      "read_is_fixed_document_allowlist": true,
+      "document_url_requires_strict_official_host_and_path": true,
+      "other_document_rejected_before_network": true,
+      "read_requires_per_action_model_transfer_elicitation": true,
+      "approval_prompt_names_originating_interface": true,
+      "gateway_approval_timeout_seconds": 120,
+      "mcp_elicitation_timeout_seconds": 120,
+      "mcp_tool_timeout_seconds": 150,
+      "preapproval_is_unsupported_and_retry_restarts_original_request": true,
+      "timeout_without_inbound_approval_must_not_blame_feishu": true,
+      "create_is_fixed_parent_allowlist": true,
+      "write_disabled_without_fixed_parent": true,
+      "write_tool_absent_without_fixed_parent": true,
+      "write_requires_per_action_elicitation": true,
+      "content_passed_on_stdin_not_command_line": true,
+      "resource_identifiers_stored_in_private_scope_file_not_process_args": true,
+      "official_cli_package": "@larksuite/cli",
+      "explicit_node_runtime_path_required": true,
+      "node_runtime_identity_verified": true,
+      "isolated_runtime_does_not_depend_on_inherited_path": true,
+      "compatible_existing_cli_reused": true,
+      "missing_cli_install_requires_user_consent": true,
+      "dedicated_named_profile_does_not_overwrite_existing": true,
+      "every_cli_call_explicitly_binds_named_profile": true,
+      "agent_bound_cli_preserves_exact_hermes_home": true,
+      "cli_version_and_docs_v2_help_verified": true,
+      "docs_v2_create_uses_current_content_and_parent_flags": true,
+      "user_oauth_handoff_hides_url_and_device_code": true,
+      "user_only_completes_official_account_confirmation": true,
+      "safe_missing_scope_names_are_allowlisted": true,
+      "raw_cli_failure_output_is_not_echoed": true
+    },
+    "coding_agent": {
+      "executor": "scripts/scoped_coding_mcp.py",
+      "generic_terminal_exposed_to_weixin": false,
+      "requires_clean_git_root": true,
+      "codex_runs_in_disposable_detached_worktree": true,
+      "prepare_and_apply_are_separate_confirmations": true,
+      "original_project_unchanged_during_prepare": true,
+      "cli_must_start_and_required_flags_be_present": true,
+      "mcp_startup_mechanically_checks_codex_cli_contract": true,
+      "node_shebang_launcher_requires_explicit_verified_node": true,
+      "installed_but_broken_cannot_count_as_existing": true,
+      "login_status_checked_before_mcp_enable": true,
+      "login_status_checked_before_each_prepare": true,
+      "login_states": [
+        "logged_in",
+        "not_logged_in",
+        "expired_or_invalid"
+      ],
+      "login_repair_uses_official_or_device_flow_in_trusted_window": true,
+      "login_secret_never_requested_in_chat": true,
+      "desktop_app_login_not_assumed_for_cli": true,
+      "global_custom_provider_not_overwritten": true,
+      "dedicated_codex_home_supported": true,
+      "dedicated_codex_home_private": true,
+      "mcp_explicitly_binds_codex_home": true,
+      "codex_exec_timeout_seconds": 1800,
+      "mcp_elicitation_timeout_seconds": 120,
+      "mcp_tool_timeout_seconds": 1830,
+      "runtime_auth_and_quota_failures_are_actionable": true,
+      "readonly_dedicated_home_failure_is_actionable": true,
+      "raw_codex_failure_output_is_not_echoed": true,
+      "codex_sandbox": "workspace-write",
+      "codex_network_access": false,
+      "state_directory_owner_and_mode_verified": true,
+      "task_record_updates_are_atomic": true,
+      "apply_record_failure_restores_original_project": true,
+      "rollback_record_failure_restores_applied_project": true,
+      "commit_push_publish_deploy_allowed": false,
+      "rollback_refuses_after_later_changes": true,
+      "cross_device_bridge_included": false
+    },
+    "daily_automation": {
+      "script_must_be_inside_profile_scripts_dir": true,
+      "deterministic_task_prefers_no_agent": true,
+      "manual_run_required_before_schedule_acceptance": true,
+      "run_receipt_required": true,
+      "chinese_delivery_requires_wrap_response_false_readback": true,
+      "pause_resume_remove_documented": true,
+      "path_traversal_negative_test_required": true,
+      "cli_success_requires_positive_receipt_not_exit_code": true,
+      "failed_run_must_persist_failed_receipt": true,
+      "failed_or_empty_output_cannot_be_accepted_as_delivery": true,
+      "real_weixin_delivery_required_for_real_completion": true
+    }
+  },
+  "acceptance_isolation": {
+    "dedicated_profile_required": true,
+    "profile_must_not_be_default": true,
+    "profile_gateway_must_be_stopped_before_test": true,
+    "profile_must_have_no_weixin_credentials_before_qr": true,
+    "production_soul_memory_sessions_and_weixin_untouched": true,
+    "every_stateful_command_must_bind_profile": true,
+    "every_profile_dependent_command_must_bind_profile": true,
+    "named_profile_alone_is_credential_isolation": false,
+    "strict_test_requires_clean_secret_sources": true,
+    "protected_existing_assistant_must_not_be_read": true,
+    "strict_test_requires_exclusive_isolated_root_marker": true,
+    "isolated_root_purpose_and_scope_bound": true,
+    "protected_live_local_acceptance_uses_persistent_isolated_root": true,
+    "persistent_local_root_requires_fresh_gate_before_first_auth": true,
+    "persistent_local_root_reused_without_reasking_valid_credentials": true,
+    "persistent_local_root_forbids_managed_service_install": true,
+    "fresh_profile_gate_required_before_model_auth": true,
+    "fresh_profile_gate_rejects_known_runtime_home_auth_sources": true,
+    "chat_safety_baseline_required_before_model_auth": true,
+    "chat_safety_recheck_required_after_model_auth_before_probe": true,
+    "profile_permissions_rehardened_after_model_probe_before_weixin": true,
+    "strict_test_hermes_commands_use_sanitized_environment_runner": true,
+    "approved_hermes_root_required_by_safety_checkers": true
+  },
+  "profile_lifecycle": {
+    "required_before_stateful_setup": true,
+    "new_user_profile": "fresh_nondefault",
+    "clone_for_new_user": false,
+    "fresh_create_command": "hermes profile create <Profile> --no-alias --no-skills",
+    "existing_name_reuse_allowed_for_new_or_isolation": false,
+    "resolved_path_must_end_with_profiles_profile": true,
+    "every_stateful_command_must_bind_same_profile": true,
+    "binding_checks": [
+      "profile_show",
+      "config_path",
+      "config_env_path"
+    ],
+    "binding_commands": {
+      "profile_show": "hermes profile show <Profile>",
+      "config_path": "hermes -p <Profile> config path",
+      "config_env_path": "hermes -p <Profile> config env-path"
+    }
+  },
+  "credential_provenance": {
+    "must_be_classified_without_secret_values": true,
+    "allowed_labels": [
+      "profile_specific",
+      "global_shared",
+      "process_environment",
+      "shared_oauth",
+      "unknown"
+    ],
+    "shared_or_unknown_requires_user_decision": true,
+    "strict_test_forbids_uncontrolled_shared_or_process_fallback": true,
+    "strict_test_runner_clears_inherited_model_and_weixin_secrets": true,
+    "strict_test_shared_auth_must_stay_inside_isolated_root": true,
+    "cloud_manager_unit_and_initial_process_forbid_uncontrolled_model_secrets": true,
+    "configuration_detection_is_not_connectivity_evidence": true,
+    "classified_before_remote_or_billable_probe": true,
+    "direct_auth_list_output_allowed_in_agent_logs": false,
+    "raw_deep_status_allowed_in_agent_logs": false,
+    "protected_mode_dashboard_secret_entry_allowed": false,
+    "protected_mode_secret_entry_channels": [
+      "prompt_synchronized_native_secret_dialog_via_isolated_runner",
+      "isolated_runner_trusted_tty",
+      "provider_official_oauth_inside_isolated_root"
+    ]
+  },
+  "conversation_first_handoff": {
+    "user_terminal_typing_required_by_default": false,
+    "agent_executes_noninteractive_steps": true,
+    "user_presence_only_for": [
+      "official_oauth_approval",
+      "masked_secret_input",
+      "qr_scan",
+      "payment",
+      "phone_authorization"
+    ],
+    "interactive_priority": [
+      "host_native_secret_or_official_ui",
+      "agent_launched_trusted_terminal",
+      "manual_single_command_last_resort"
+    ],
+    "trusted_handoff_launcher": "scripts/launch_trusted_handoff.py",
+    "cloud_api_key_uses_prompt_synchronized_native_dialog": true,
+    "macos_secret_dialog_backend": "osascript_display_dialog_hidden_answer",
+    "macos_secret_field_visible_and_editable_required": true,
+    "macos_tkinter_secret_dialog_allowed": false,
+    "cloud_api_key_secret_collected_only_after_masked_prompt": true,
+    "cloud_api_key_early_ssh_pipe_forbidden": true,
+    "cloud_api_key_label_user_action_required": false,
+    "cloud_api_key_echo_detection_required": true,
+    "cloud_api_key_save_receipt_required": true,
+    "cloud_api_key_raw_child_output_returned": false,
+    "weixin_direct_setup_helper": "scripts/setup_weixin_direct.py",
+    "weixin_platform_menu_user_action_required": false,
+    "weixin_permission_menu_user_action_required": false,
+    "weixin_user_action": "qr_scan_and_phone_confirmation_only",
+    "windows_third_party_terminal_required": false,
+    "windows_agent_launched_system_console_allowed": true,
+    "qr_or_login_url_requires_ephemeral_trusted_display": true,
+    "launcher_returns_only_nonsecret_open_state": true,
+    "manual_terminal_requires_reason": true,
+    "manual_terminal_requires_user_opt_in": true,
+    "manual_terminal_max_commands": 1,
+    "manual_terminal_command_must_be_atomic": true,
+    "manual_terminal_command_must_be_fully_resolved": true,
+    "manual_terminal_command_must_not_contain_secret": true,
+    "generic_model_wizard_allowed_before_provider_is_fixed": false,
+    "provider_scoped_auth_required": true,
+    "provider_oauth_route": "auth add <provider> --type oauth",
+    "provider_api_key_route": "auth add <provider> --type api_key",
+    "device_code_qr_or_login_url_allowed_in_chat": false,
+    "cloud_remote_service_user_required": true,
+    "cloud_remote_account_switch_required": true,
+    "cloud_direct_requires_matching_explicit_ssh_user": true,
+    "cloud_remote_account_switch_modes": [
+      "root-runuser",
+      "sudo",
+      "direct"
+    ],
+    "user_must_not_be_asked_to": [
+      "cd",
+      "source",
+      "ssh",
+      "assemble_paths",
+      "run_multiple_commands"
+    ]
+  },
+  "execution_boundary": {
+    "default_weixin_profile": "chat_only",
+    "default_cli_profile_before_model_probe": "chat_only",
+    "chat_only_always_enabled_toolsets": [
+      "clarify"
+    ],
+    "chat_only_enable_only_if_selected_and_verified": [
+      "web",
+      "vision",
+      "todo",
+      "memory",
+      "session_search"
+    ],
+    "chat_only_disable_if_present": [
+      "skills",
+      "browser",
+      "terminal",
+      "file",
+      "code_execution",
+      "video",
+      "image_gen",
+      "video_gen",
+      "bfl",
+      "tts",
+      "stt",
+      "x_search",
+      "delegation",
+      "cronjob",
+      "context_engine",
+      "homeassistant",
+      "spotify",
+      "yuanbao",
+      "computer_use",
+      "codex_bridge"
+    ],
+    "workspace_required_before_weixin": true,
+    "workspace_required_before_model_auth": true,
+    "workspace_must_be_absolute": true,
+    "workspace_must_not_be_home": true,
+    "interactive_runner_by_mode": {
+      "ordinary_new_or_authorized": "direct_profile_bound",
+      "protected_acceptance": "isolation_guard_run",
+      "cloud_new_or_test": "isolation_guard_run_cloud"
+    },
+    "cloud_interactive_home_matches_service_runtime_home": true,
+    "user_visible_command_placeholders_forbidden": true,
+    "protected_and_cloud_sensitive_interactions_require_trusted_tty": true,
+    "external_qwen_oauth_runner": "isolation_guard.py run-qwen-auth",
+    "terminal_cwd_is_starting_directory_not_sandbox": true,
+    "local_backend_is_sandbox": false,
+    "high_risk_backend": "docker",
+    "allowed_approval_modes_for_tool_use": [
+      "manual",
+      "smart"
+    ],
+    "forbidden_approval_mode": "off",
+    "skills_write_approval_required_if_enabled": true,
+    "weixin_reasoning_visible": false,
+    "cli_reasoning_visible_before_model_probe": false,
+    "chat_only_memory_injection_enabled": false,
+    "chat_only_effective_enabled_toolsets_exact": [
+      "clarify"
+    ],
+    "chat_only_mcp_servers_allowed": false,
+    "hidden_or_unknown_platform_toolsets_allowed": false,
+    "process_weixin_prefix_overrides_allowed": false,
+    "unknown_profile_weixin_keys_allowed": false,
+    "pre_qr_checker": "scripts/check_pre_qr_safety.py",
+    "pre_model_baseline_helper": "scripts/apply_chat_safety_baseline.py",
+    "pre_model_and_pre_qr_checker": "scripts/check_pre_qr_safety.py",
+    "post_model_probe_baseline_reapply_required": true,
+    "isolation_checker": "scripts/isolation_guard.py",
+    "pre_qr_expected_hermes_root_required": true,
+    "pre_qr_static_checks": [
+      "dedicated_workspace_is_safe_absolute_path",
+      "profile_path_matches_requested_name",
+      "weixin_state_absent_before_qr",
+      "terminal_cwd_matches_workspace",
+      "cli_effective_tools_are_exactly_clarify",
+      "cli_reasoning_display_is_disabled",
+      "model_and_profile_secret_stores_are_private",
+      "unselected_and_unknown_weixin_toolsets_are_disabled",
+      "skills_toolset_is_disabled",
+      "weixin_reasoning_display_is_disabled",
+      "builtin_memory_and_user_profile_injection_are_disabled"
+    ],
+    "post_qr_pre_start_checks": [
+      "dm_allowlist_is_nonempty_and_owner_only",
+      "group_policy_is_disabled",
+      "allow_all_flags_are_false",
+      "home_channel_set",
+      "home_channel_matches_owner",
+      "config_access_overrides_absent",
+      "process_weixin_overrides_absent",
+      "weixin_endpoints_are_official_or_builtin",
+        "profile_path_matches_requested_name",
+        "secret_files_and_directory_private",
+        "weixin_and_auth_stores_private",
+        "profile_store_path_scope_resolved",
+        "service_absent_and_gateway_not_running_until_persona_ready"
+    ],
+    "post_qr_runtime_negative_tests": [
+      "write_inside_workspace_succeeds_when_file_tools_are_authorized",
+      "read_or_write_outside_workspace_is_denied",
+      "prompt_injection_cannot_enable_disabled_tools",
+      "destructive_command_requires_approval_or_is_denied",
+      "skill_manage_is_unavailable_or_requires_explicit_approval"
+    ]
+  },
+  "setup_supervision": {
+    "proactive_nonsecret_state_polling_required": true,
+    "polling_requires_baseline_snapshot": true,
+    "polling_requires_fresh_state_transition": true,
+    "polling_must_not_expose_secret_values": true,
+    "screen_report_protocol_is_fallback": true,
+    "screen_report_fallback_when_state_not_observable": true,
+    "qr_success_is_not_configuration_complete": true,
+    "generic_gateway_setup_used_for_weixin": false,
+    "direct_weixin_helper_fixes_owner_allowlist_and_groups_disabled": true,
+    "direct_weixin_helper_never_starts_or_installs_gateway": true,
+    "exit_before_default_yes_service_prompts": true,
+    "final_exit_notice_required": true
+  },
+  "progress_display": {
+    "full_five_step_rail_at_start": true,
+    "full_five_step_rail_on_step_transition": true,
+    "compact_status_within_step": true,
+    "progress_line_cannot_replace_explanation": true,
+    "new_step_explains": [
+      "user_outcome",
+      "why_now",
+      "agent_action",
+      "single_user_action",
+      "visible_success_signal"
+    ],
+    "maximum_user_actions_per_prompt": 1
+  },
+  "weixin_access": {
+    "dm_policy": "allowlist",
+    "allowed_users_nonempty": true,
+    "allowed_users_exact_owner_only": true,
+    "group_policy": "disabled",
+    "gateway_stays_stopped_until_persona_ready": true,
+    "configuration_evidence_required": true,
+    "second_account_negative_test_required_for_base_completion": false,
+    "second_account_negative_test_status_when_unavailable": "not_verified",
+    "effective_policy_not_env_text_only": true,
+    "prestart_checker": "scripts/check_profile_safety.py"
+  },
+  "platform_gate": {
+    "supported": [
+      "macos_apple_silicon",
+      "windows_10_11_x86_64_aarch64",
+      "linux_x86_64_aarch64"
+    ],
+    "unsupported": [
+      "macos_intel"
+    ],
+    "macos_required_checks": [
+      "uname_s_is_darwin",
+      "uname_m_is_arm64",
+      "macos_version_at_least_12",
+      "git_version_succeeds",
+      "desktop_native_build_dependency_available"
+    ],
+    "windows_required_checks": [
+      "powershell_version",
+      "windows_version",
+      "architecture",
+      "get_command_hermes_after_new_terminal",
+      "profile_secret_acl_private"
+    ],
+    "linux_required_checks": [
+      "supported_architecture",
+      "git_version_succeeds",
+      "curl_version_succeeds",
+      "xz_version_succeeds"
+    ],
+    "installer_result_classification": {
+      "network_clone_timeout_counts_as_install_success": false,
+      "lockfile_hash_fallback_must_be_disclosed": true,
+      "lockfile_hash_fallback_counts_as_strict_supply_chain_pass": false,
+      "core_cli_and_optional_dependencies_have_separate_status": true,
+      "installer_completion_banner_is_sufficient_evidence": false,
+      "blind_retry_after_no_progress": false
+    },
+    "required_hermes_capabilities": [
+      "profile_selector",
+      "gateway_run_foreground",
+      "gateway_setup_weixin",
+      "platform_tool_policy",
+      "profile_show_positional_name",
+      "clean_root_cli_contract_check",
+      "provider_scoped_auth",
+      "pre_qr_exact_tool_gate",
+      "gateway_install_start_flags",
+      "deep_gateway_status"
+    ]
+  },
+  "local_service_lifecycle": {
+    "before_persona": "service_not_installed_and_gateway_not_running",
+    "acceptance_command": "hermes -p <Profile> gateway run",
+    "protected_acceptance_command": "isolation_guard.py run ... -- -p <Profile> gateway run",
+    "protected_foreground_stop_command": "isolation_guard.py run ... -- -p <Profile> gateway stop",
+    "protected_foreground_stop_is_profile_scoped": true,
+    "protected_foreground_restart_counts_as_persistence": false,
+    "persistence_command": "hermes -p <Profile> gateway install --force --start-now --start-on-login",
+    "persistence_only_after_acceptance": true,
+    "macos_recovery_point": "after_target_user_login",
+    "windows_recovery_point": "after_target_user_login",
+    "linux_recovery_point": "after_boot_for_enabled_service"
+  },
+  "cloud_service": {
+    "scope": "service_account_user_with_linger",
+    "run_as_root": false,
+    "interactive_runner": "isolation_guard.py run-cloud",
+    "interactive_home_matches_gateway_runtime_home": true,
+    "commands": {
+      "stage": "python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway install --no-start-now --no-start-on-login",
+      "start": "python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway start",
+      "stop": "python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway stop",
+      "restart": "python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway restart",
+      "status": "python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway status --deep",
+      "persist_stage": "python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway install --force --no-start-now --start-on-login"
+    },
+    "admin_commands": {
+      "enable_linger_as_root": "loginctl enable-linger <非root账号>",
+      "enable_linger_with_sudo": "sudo loginctl enable-linger <非root账号>",
+      "verify_linger": "loginctl show-user <非root账号> -p Linger"
+    },
+    "admin_privilege_path": "root_without_sudo_or_nonroot_with_sudo",
+    "deployment_sequence": [
+      "admin_readonly_preflight",
+      "user_confirms_deployment",
+      "test_resource_ledger_frozen",
+      "service_account_created",
+      "linger_enabled",
+      "service_account_resource_ledger_initialized",
+      "resource_ledger_prewrite_passed",
+      "release_directory_created_and_recorded",
+      "release_uploaded_and_hash_verified",
+      "model_host_selected_without_secret",
+      "service_account_preflight_from_release",
+      "hermes_installed",
+      "isolated_root_created",
+      "isolated_root_recorded",
+      "workspace_created_and_recorded",
+      "profile_created",
+      "profile_directory_recorded",
+      "fresh_profile_gate_passed",
+      "chat_safety_baseline_applied",
+      "pre_model_safety_gate_passed",
+      "model_authenticated",
+      "post_model_safety_gate_passed",
+      "model_probe_passed",
+      "post_model_probe_permissions_rehardened",
+      "weixin_authenticated",
+      "service_staged_stopped_disabled",
+      "systemd_env_guard_installed",
+      "resource_ledger_sealed",
+      "systemd_prestart_env_verified",
+      "persona_written",
+      "service_started",
+      "systemd_runtime_env_verified"
+    ],
+    "all_hermes_commands_run_in_service_account_login": true,
+    "service_management_commands_use_real_home_isolation_runner": true,
+    "service_runner_requires_cloud_service_root_purpose": true,
+    "preflight_required": [
+      "systemd",
+      "systemd_is_running",
+      "user_scope_unit_manageable",
+      "linger_enabled",
+      "systemd_manager_has_no_uncontrolled_secret_environment",
+      "root_or_sudo_admin_path",
+      "curl",
+      "git",
+      "xz",
+      "supported_linux",
+      "nonroot_account",
+      "service_user_login_path",
+      "absolute_hermes_launcher",
+      "playwright_dependency_decision",
+      "timezone_checked"
+    ],
+    "profile_binding_required_for_every_command": true,
+    "unit_must_pin_profile_home": true,
+    "unit_environment_must_reject_unapproved_weixin_overrides": true,
+    "unit_environment_must_reject_uncontrolled_model_secrets": true,
+    "test_resource_ledger_required_before_write_on_shared_server": true,
+    "release_package_verifier": "scripts/verify_release_package.py",
+    "release_package_extract_without_overwrite": true,
+    "release_package_artifacts_outside_skill_tree": true,
+    "release_package_rejects_unsafe_archive_entries": true,
+    "test_resource_ledger_guard": {
+      "script": "scripts/resource_ledger_guard.py",
+      "new_service_account_required": true,
+      "bootstrap_guard_runs_without_untracked_remote_file": true,
+      "host_and_instance_label_binding_required": true,
+      "planned_paths_and_unit_must_be_absent": true,
+      "each_created_path_inode_recorded_immediately": true,
+      "partial_cleanup_requires_recorded_or_absent_paths": true,
+      "deployed_inode_seal_required": true,
+      "seal_requires_current_host_uid_home_binding": true,
+      "cleanup_preview_never_deletes": true,
+      "cleanup_requires_no_same_uid_gateway_process": true,
+      "unknown_unit_state_fails_cleanup": true,
+      "authorization_revocation_is_user_confirmation_not_provider_proof": true,
+      "authorization_creation_intent_recorded_before_external_flow": true,
+      "cleanup_verification_required": true
+    },
+    "cleanup_only_exact_test_created_resources": true,
+    "systemd_environment_guard": {
+      "script": "scripts/systemd_env_guard.py",
+      "manager_check_before_install": true,
+      "dropin_unsets_current_weixin_keys": true,
+      "unit_environment_files_for_weixin_allowed": false,
+      "unit_execstart_and_profile_home_must_match": true,
+      "expected_hermes_root_required": true,
+      "stage_must_be_inactive_disabled": true,
+      "prestart_must_be_inactive": true,
+      "prerestart_must_be_active": true,
+      "runtime_expected_enabled_required": true,
+      "prestart_check_required": true,
+      "runtime_proc_environ_boolean_check_required": true,
+      "runtime_proc_cmdline_profile_check_required": true,
+      "manager_unit_and_initial_process_model_secret_check_required": true,
+      "manager_and_process_home_must_match_os_account": true,
+      "unit_home_override_must_be_absent_or_match_os_account": true,
+      "ambient_credential_home_overrides_forbidden": true,
+      "same_service_user_gateway_process_scan_required": true,
+      "target_must_be_only_gateway_for_service_user": true,
+      "after_persist_and_reboot_recheck_required": true,
+      "persistence_sequence": [
+        "stop_verified",
+        "force_rewrite_enabled_but_stopped",
+        "prestart_check_on_rewritten_unit",
+        "explicit_gateway_start",
+        "runtime_environment_check"
+      ]
+    },
+    "remote_checker_release_hash_must_match": true,
+    "weixin_requires_new_public_inbound_port": false,
+    "dashboard_public_internet_exposure_allowed": false,
+    "secret_backup_scope_review_required": true
+  },
+  "cloud_qr": {
+    "same_phone_short_url_verified": false,
+    "second_trusted_screen_required": true,
+    "stop_before_purchase_if_unavailable": true
+  },
+  "cloud_cutover": {
+    "duplicate_poller_allowed": false,
+    "steps": [
+      "prepare_cloud_without_starting_gateway",
+      "verify_cloud_config_and_rollback",
+      "stop_local_gateway",
+      "verify_local_gateway_stopped",
+      "start_cloud_gateway",
+      "verify_cloud_weixin_round_trip",
+      "on_failure_stop_cloud_before_restore_local"
+    ]
+  },
+  "persistent_memory_verification": {
+    "session_count": 3,
+    "steps": [
+      "session_a_add_tagged_nonsensitive_fact",
+      "session_b_verify_fact_then_remove_memory_entry",
+      "session_c_verify_memory_entry_absent"
+    ],
+    "removal_does_not_erase": [
+      "session_history",
+      "logs",
+      "provider_records"
+    ]
+  },
+  "knowledge_revoke": {
+    "mechanisms": [
+      "obsidian_path",
+      "obsidian_sync",
+      "syncthing_share",
+      "feishu_oauth"
+    ],
+    "steps": [
+      "stop_access_immediately",
+      "identify_real_authorization_mechanism",
+      "remove_path_mount_share_or_oauth_scope",
+      "reload_or_restart_affected_component",
+      "negative_read_test_must_be_denied",
+      "record_cache_history_and_provider_retention_caveat"
+    ]
+  },
+  "model_switch": {
+    "strict_zero_downtime_promised": false,
+    "steps": [
+      "record_old_route_without_secrets",
+      "configure_new_provider_without_changing_old_default",
+      "test_new_model_in_isolated_local_session",
+      "switch_weixin_session_only",
+      "verify_real_weixin_task",
+      "persist_only_after_success",
+      "on_failure_restore_old_route"
+    ]
+  },
+  "incremental_detection": {
+    "automatic_read_scope": [
+      "hermes_version",
+      "hermes_config_nonsecret_keys",
+      "hermes_gateway_status",
+      "hermes_tool_status"
+    ],
+    "requires_explicit_scope": [
+      "user_directories",
+      "ssh_configuration",
+      "cloud_assets",
+      "obsidian_vaults",
+      "feishu_accounts",
+      "other_apps"
+    ]
+  },
+  "quality_acceptance": {
+    "release_grade_required": [
+      "ten_turn_chinese_soak",
+      "long_message_round_trip",
+      "rapid_two_message_no_duplicate_or_loss",
+      "gateway_restart_recovery",
+      "real_non_welcome_task",
+      "error_message_states_problem_and_next_action",
+      "natural_self_intro_without_internal_rules",
+      "reasoning_hidden_from_weixin",
+      "unselected_memory_not_injected"
+    ],
+    "safe_fault_injection_optional": [
+      "network_short_interruption",
+      "model_401",
+      "model_429",
+      "model_balance_exhausted"
+    ],
+    "unperformed_fault_injection_status": "not_verified"
+  },
+  "completion_states": {
+    "chat_usable": [
+      "base_completion_required_all_passed",
+      "current_same_profile_gateway_running",
+      "post_handoff_real_weixin_round_trip"
+    ],
+    "persistent_runtime_verified": [
+      "chat_usable",
+      "service_pins_same_profile",
+      "gateway_restart_real_weixin_round_trip"
+    ],
+    "boot_recovery_verified": [
+      "persistent_runtime_verified",
+      "real_machine_reboot",
+      "boot_id_changed",
+      "post_reboot_real_weixin_round_trip"
+    ],
+    "simulation_cannot_satisfy_real_state": true,
+    "ten_turn_and_fault_injection_are_release_grade_not_first_use_blockers": true
+  },
+  "secret_lifecycle": {
+    "transit_protected": true,
+    "at_rest_permissions_required": true,
+    "backup_snapshot_scope_review_required": true,
+    "logs_must_be_minimized_and_private": true,
+    "incident_response_steps": [
+      "stop_single_poller",
+      "revoke_or_reauthenticate_weixin",
+      "rotate_affected_model_credentials",
+      "remove_authorized_backups_and_caches",
+      "rerun_prestart_and_real_round_trip_checks"
+    ]
+  }
+}
