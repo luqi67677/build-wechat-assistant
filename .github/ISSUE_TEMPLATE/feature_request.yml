@@ -1,0 +1,25 @@
+name: 功能建议
+description: 建议一个明确的用户场景或能力升级
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 用户要解决什么问题
+      description: 描述用户、环境和最终结果，不只写工具名称。
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: 理想流程
+      description: 哪些由 Agent 自动完成，哪些必须由用户授权或操作？
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: 权限、费用与回滚边界
+    validations:
+      required: true

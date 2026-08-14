@@ -1,0 +1,45 @@
+name: Bug 报告
+description: 报告可复现的流程、文案或安全边界问题
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: 请勿提交密钥、token、二维码、Cookie、.env、私人文档或真实用户 ID。安全漏洞请按 SECURITY.md 私下报告。
+  - type: input
+    id: version
+    attributes:
+      label: Skill 与 Hermes 版本
+      placeholder: build-wechat-assistant V7.5.x；Hermes v0.20.0
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: 操作模式
+      options:
+        - 全新搭建
+        - 已授权增量
+        - 受保护验收
+        - 不确定
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 使用脱敏的最小步骤，不粘贴完整日志。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+    validations:
+      required: true
