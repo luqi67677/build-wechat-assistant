@@ -100,6 +100,7 @@ def _is_repo_file(relative: str) -> bool:
         relative in REPO_LEVEL_FILES
         or relative.startswith(".github/")
         or relative.startswith(".git/")
+        or relative.startswith("tools/")
     )
 
 
