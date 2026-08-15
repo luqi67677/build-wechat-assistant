@@ -81,6 +81,28 @@ REQUIRED_FILES = frozenset(
         "scripts/verify_release_package.py",
     }
 )
+
+REPO_LEVEL_FILES = frozenset(
+    {
+        "README.md",
+        "LICENSE",
+        "VERSION",
+        ".gitignore",
+        "CONTRIBUTING.md",
+        "SECURITY.md",
+    }
+)
+
+
+def _is_repo_file(relative: str) -> bool:
+    """仓库层文件不属于 Skill 运行文件树，结构校验时忽略。"""
+    return (
+        relative in REPO_LEVEL_FILES
+        or relative.startswith(".github/")
+        or relative.startswith(".git/")
+    )
+
+
 MARKDOWN_FILES = tuple(sorted(path for path in REQUIRED_FILES if path.endswith(".md")))
 FORBIDDEN_PATTERNS = {
     r"(?:\u5c0f\u4e03|\u516d\u4e03|\u7131\u4e03)": "把维护者的私人助手名称写入通用发布包",
@@ -211,7 +233,7 @@ def validate_structure(root: Path, failures: list[str]) -> None:
     actual_files = {
         path.relative_to(root).as_posix()
         for path in root.rglob("*")
-        if path.is_file()
+        if path.is_file() and not _is_repo_file(path.relative_to(root).as_posix())
     }
     missing = sorted(REQUIRED_FILES - actual_files)
     unexpected = sorted(actual_files - REQUIRED_FILES)
@@ -313,8 +335,6 @@ def run_flow_tests(root: Path, failures: list[str], hermes: Path | None) -> bool
     )
     if result.returncode != 0:
         detail = (result.stderr or result.stdout).strip().splitlines()
-        if detail:
-            print("\n".join(detail[-80:]), file=sys.stderr)
         add_failure(failures, f"流程回归失败：{detail[-1] if detail else '未知错误'}")
     if hermes is not None and not source_facts_verified:
         add_failure(failures, f"指定 Hermes 的源码事实核验数量异常：{source_fact_count}/30")

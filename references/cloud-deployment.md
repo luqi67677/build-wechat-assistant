@@ -148,12 +148,12 @@ systemctl is-system-running
 
 云端受信终端交接器必须显式接收远端服务账号和账号切换方式，不能从 SSH 别名、当前 HOME 或目录名猜测。root SSH 入口使用 `root-runuser`，非 root 管理员入口使用 `sudo`；只有 SSH 目标明确写成同一个服务账号时才允许 `direct`。三种方式均由交接器校验并把最终 `run-cloud` 绑定到服务账号真实登录身份；参数缺失、服务账号为 root、直接登录用户名不匹配或值含注入字符时失败关闭，不得退回管理员身份执行。
 
-在承载其他内容的已有服务器做小号测试时，任何服务器写入前先用 `scripts/resource_ledger_guard.py` 在用户控制、权限为仅当前用户可访问的受保护本地目录创建机器可校验的**测试资源计划**；父目录不私有时脚本直接拒绝。先把阿里云控制台中唯一实例标签做 SHA-256，再通过已经确认的只读连接取得该机 `host-binding` 哈希；两个哈希、计划中的全新非 root 服务账号 HOME、Profile、全新 Hermes 状态根、user unit、专用工作区和 V7.5.15 发布目录写入计划。IP、主机名、用户名、路径和哈希只留在受保护记录与目标服务器，不写进 Agent 评测、聊天或公开文档。`create-plan` 必须发生在创建服务账号之前；随后只允许创建计划中的全新服务账号。把计划文件作为该账号 HOME 内的第一份状态文件传入后，用同一份已校验脚本的 `activate-plan` 核对真实 machine-id/root-device 绑定、操作系统账号 HOME、UID、计划路径和 unit 均无冲突。再运行 `check-prewrite`；三项全部 PASS 前不得上传发布包、安装 Hermes、输入凭据或扫码。脚本的 `preview-cleanup` 只预览且没有删除原语；任何删除仍需用户逐项确认。
+在承载其他内容的已有服务器做小号测试时，任何服务器写入前先用 `scripts/resource_ledger_guard.py` 在用户控制、权限为仅当前用户可访问的受保护本地目录创建机器可校验的**测试资源计划**；父目录不私有时脚本直接拒绝。先把阿里云控制台中唯一实例标签做 SHA-256，再通过已经确认的只读连接取得该机 `host-binding` 哈希；两个哈希、计划中的全新非 root 服务账号 HOME、Profile、全新 Hermes 状态根、user unit、专用工作区和 V0.1 发布目录写入计划。IP、主机名、用户名、路径和哈希只留在受保护记录与目标服务器，不写进 Agent 评测、聊天或公开文档。`create-plan` 必须发生在创建服务账号之前；随后只允许创建计划中的全新服务账号。把计划文件作为该账号 HOME 内的第一份状态文件传入后，用同一份已校验脚本的 `activate-plan` 核对真实 machine-id/root-device 绑定、操作系统账号 HOME、UID、计划路径和 unit 均无冲突。再运行 `check-prewrite`；三项全部 PASS 前不得上传发布包、安装 Hermes、输入凭据或扫码。脚本的 `preview-cleanup` 只预览且没有删除原语；任何删除仍需用户逐项确认。
 
 首次台账门禁通过前不把引导脚本落盘。通过已授权 SSH 的标准输入或等价的受保护临时执行通道运行本地已校验的 `resource_ledger_guard.py`，远端只创建计划规定的 ledger 文件；不使用 shell 历史、聊天粘贴、临时脚本文件或未登记下载路径。不能提供不落盘执行通道时停止，不得为了启动台账先在服务器留下一个台账无法记录和清理的脚本。发布目录已创建并用同一不落盘通道立即 `record-created` 后，才上传 ZIP；发布包逐文件验真后，后续改用其中已记录的脚本。目标冲突、归属未知、服务账号已存在或无法证明全新时停止，不借用既有生产助手的账号、Profile、unit、HOME、凭据或目录。
 
 ```bash
-python3 <已校验本地Skill绝对路径>/scripts/resource_ledger_guard.py create-plan --ledger <受保护本地计划绝对路径> --service-home <计划中的全新服务账号HOME> --profile <Profile> --hermes-root <本轮专用Hermes根> --workspace <专用工作区> --release-dir <V7.5.15发布目录> --instance-label-sha256 <控制台实例标签哈希> --host-binding-sha256 <只读主机绑定哈希>
+python3 <已校验本地Skill绝对路径>/scripts/resource_ledger_guard.py create-plan --ledger <受保护本地计划绝对路径> --service-home <计划中的全新服务账号HOME> --profile <Profile> --hermes-root <本轮专用Hermes根> --workspace <专用工作区> --release-dir <V0.1发布目录> --instance-label-sha256 <控制台实例标签哈希> --host-binding-sha256 <只读主机绑定哈希>
 # 以下两条由 Agent 把本地已校验脚本经受保护标准输入交给目标机；“-”不是文件路径
 python3 - activate-plan --ledger <服务账号HOME内台账绝对路径>
 python3 - check-prewrite --ledger <服务账号HOME内台账绝对路径>
@@ -161,8 +161,8 @@ python3 - check-prewrite --ledger <服务账号HOME内台账绝对路径>
 
 1. 固定第 2 节的管理员只读基础预检结果；结果变化或用户尚未确认部署时停止。
 2. 用户看完已生成的测试资源计划、预计改动、端口、磁盘和服务名并明确确认后，只创建计划中的全新非 root Hermes 运行账号；已有账号一律不能用于共享服务器小号测试。用 `id -u` 分支启用 linger：root 直接运行 `loginctl enable-linger <非root账号>`；非 root 管理员运行 `sudo loginctl enable-linger <非root账号>`。随后进入该服务账号的真实登录会话，先激活并通过资源台账 `check-prewrite`，再确认 `systemctl --user show-environment` 可用且 `loginctl show-user <非root账号> -p Linger` 为 `Linger=yes`。用户级 manager、linger 或台账不能确认时停止。
-3. 把本次 V7.5.15 的 ZIP、`SHA256SUMS` 和 `FILES.sha256` 通过已授权的 SSH/SFTP 或云平台文件通道传给服务账号；远端先独占创建全新固定发布父目录 `~/.local/share/build-wechat-assistant/v7.5.15`，立即运行 `resource_ledger_guard.py record-created --resource release_dir` 冻结其 device/inode，目录中此时只能有这三个私有普通文件。随后在父目录内独占创建名称精确为 `skill` 的空私有子目录。不要让 Agent 临时拼接解压命令。通过上文资源台账使用的同一种受保护标准输入通道，把本地已校验的 `scripts/verify_release_package.py` 直接交给远端 `python3 - extract --zip <ZIP绝对路径> --sha256sums <SHA256SUMS绝对路径> --files-manifest <FILES.sha256绝对路径> --target-dir <V7.5.15发布目录>/skill` 执行，不先把验证器另存为未登记文件。脚本会在任何解压前核对 ZIP 哈希、清单与每个成员哈希，拒绝绝对路径、`..`、反斜杠路径、重复/大小写冲突、符号链接、非普通文件、加密项、异常体积、非空目标和目标范围错位；只在 `skill` 子目录中用独占创建方式不覆盖解压，再逐文件复核。ZIP 与双清单必须留在发布父目录，不能混入最终 Skill 文件树；随后对 `<V7.5.15发布目录>/skill` 运行完整验证。任一项失败保留现场并停止，不自动清理或换用更宽松解压器。哈希只证明传输内容一致，没有签名或公开 tag 时不得宣传发布者身份已验证。
-4. 让用户选择准备使用的模型厂商，只记录该厂商已核验的官方 API 主机名，不输入任何 key。此时发布包、服务账号、linger 和模型主机都已存在，才能在服务账号登录会话运行 `python3 ~/.local/share/build-wechat-assistant/v7.5.15/skill/scripts/check_cloud_preflight.py --model-host <已选模型官方主机名>`。脚本只输出布尔值，检查 Linux/架构、systemd 用户级 manager、manager 全局环境中不存在任何当前或未来 `WEIXIN_*`、`GATEWAY_ALLOW_ALL_USERS`、模型 `*_API_KEY` / `*_TOKEN` / `*_SECRET` / `*_PASSWORD` 或 `HERMES_SHARED_AUTH_DIR` 回退，另检查 linger、非 root 身份、CPU/内存/磁盘、时区，以及 Hermes 官方站、iLink 和模型主机的出站 TLS；不会输出环境值、用户名、主机名、IP、路径或 DNS 结果。失败时说明“发生了什么 + 下一步怎么做”，不得安装、输入凭据或扫码。
+3. 把本次 V0.1 的 ZIP、`SHA256SUMS` 和 `FILES.sha256` 通过已授权的 SSH/SFTP 或云平台文件通道传给服务账号；远端先独占创建全新固定发布父目录 `~/.local/share/build-wechat-assistant/v0.1`，立即运行 `resource_ledger_guard.py record-created --resource release_dir` 冻结其 device/inode，目录中此时只能有这三个私有普通文件。随后在父目录内独占创建名称精确为 `skill` 的空私有子目录。不要让 Agent 临时拼接解压命令。通过上文资源台账使用的同一种受保护标准输入通道，把本地已校验的 `scripts/verify_release_package.py` 直接交给远端 `python3 - extract --zip <ZIP绝对路径> --sha256sums <SHA256SUMS绝对路径> --files-manifest <FILES.sha256绝对路径> --target-dir <V0.1发布目录>/skill` 执行，不先把验证器另存为未登记文件。脚本会在任何解压前核对 ZIP 哈希、清单与每个成员哈希，拒绝绝对路径、`..`、反斜杠路径、重复/大小写冲突、符号链接、非普通文件、加密项、异常体积、非空目标和目标范围错位；只在 `skill` 子目录中用独占创建方式不覆盖解压，再逐文件复核。ZIP 与双清单必须留在发布父目录，不能混入最终 Skill 文件树；随后对 `<V0.1发布目录>/skill` 运行完整验证。任一项失败保留现场并停止，不自动清理或换用更宽松解压器。哈希只证明传输内容一致，没有签名或公开 tag 时不得宣传发布者身份已验证。
+4. 让用户选择准备使用的模型厂商，只记录该厂商已核验的官方 API 主机名，不输入任何 key。此时发布包、服务账号、linger 和模型主机都已存在，才能在服务账号登录会话运行 `python3 ~/.local/share/build-wechat-assistant/v0.1/scripts/check_cloud_preflight.py --model-host <已选模型官方主机名>`。脚本只输出布尔值，检查 Linux/架构、systemd 用户级 manager、manager 全局环境中不存在任何当前或未来 `WEIXIN_*`、`GATEWAY_ALLOW_ALL_USERS`、模型 `*_API_KEY` / `*_TOKEN` / `*_SECRET` / `*_PASSWORD` 或 `HERMES_SHARED_AUTH_DIR` 回退，另检查 linger、非 root 身份、CPU/内存/磁盘、时区，以及 Hermes 官方站、iLink 和模型主机的出站 TLS；不会输出环境值、用户名、主机名、IP、路径或 DNS 结果。失败时说明“发生了什么 + 下一步怎么做”，不得安装、输入凭据或扫码。
 5. 深度预检通过后才按当前官方安装页处理两个分支：需要浏览器自动化时，由管理员一次性安装 Playwright 的 Chromium 系统依赖，再由非 root 服务账号安装 Hermes；不需要浏览器时使用官方 `--skip-browser` 路线，且 Weixin 的仅聊天档保持 `browser` disabled。安装后只运行全局的 `hermes --version`，不要在 Profile 建立前读取 default 的 doctor。启动器通常位于 `~/.local/bin`；必须在服务账号登录 shell 中运行 `command -v hermes`，记录已核验的非空绝对路径，不能假设管理员或 sudo 的 PATH 能找到它。
 6. 在全新服务账号中使用台账计划的一个不存在的专用 Hermes 状态根；该根必须是这个服务账号真实 HOME 的直属子目录，不能放进其他账号、系统目录、既有 Hermes 根或软链接父目录。运行 `isolation_guard.py create-root --purpose cloud-service --root <本轮专用Hermes根>` 后立即执行 `resource_ledger_guard.py record-created --resource hermes_root`。`run-cloud` 与 `run-service` 都只接受标记用途为 `cloud-service` 且仍绑定该真实 HOME 的根。独占创建专用工作区后同样立即记录 `workspace`。再由 `run-cloud` 执行 `profile create <Profile> --no-alias --no-skills`，创建成功后立即记录 `profile_dir`。每个目录都必须在写入后续内容前冻结 device/inode；未记录的新出现路径会让部分部署清理失败关闭。不得读取其他账号或真实根的 `profile list` / `gateway list`，不得复用或 clone。随后立即在任何配置写入和模型认证前运行 `check-fresh`；只有路径精确位于新根、Profile 与根级 sessions/memories 均为空、shared 目录和服务账号 HOME 的已知模型认证存储没有旧凭据、auth 不存在、`.env` 私有且没有非空秘密、持久服务定义不存在且没有手工 gateway 进程才继续。接着用 `run-checker --checker apply_chat_safety_baseline.py` 绑定同一 Profile、Hermes、expected root 和已记录工作区，动态把 CLI 与 Weixin 都精确收缩为只启用 `clarify`；再用 `run-checker --checker check_pre_qr_safety.py` 复验。云端 checker 会按 `cloud-service` 根自动保留同一个服务账号 HOME。两项 PASS 前不得认证模型。配置、模型和扫码命令由 `isolation_guard.py run-cloud --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- ...` 启动；它清除继承秘密但保留最终 systemd gateway 使用的真实 HOME，避免 Qwen `~/.qwen` 等 HOME 级 OAuth 在认证和运行时错位。安装、启动、停止、重启、状态和卸载用户服务则只能用同脚本的 `run-service`。两种通道都必须显式带同一 `-p <Profile>`，不得混用；普通 `run` 只接受本地 `local-test` 根，在云端直接失败。全新云端路线直接在此 Profile 配置。共享服务器小号测试不得走“已有助手迁移”。
 7. 打开任何模型登录、OAuth 或 API key 录入前，先运行资源台账 `mark-authorization --kind model --state creation_started`，再从当前 `auth add --help` 与官方资料锁定唯一 provider 和认证类型。禁止运行可能自动进入 Nous Portal 等未选择厂商的通用 `model` 向导。Agent 在用户电脑上调用 `launch_trusted_handoff.py --mode cloud`，同时传入已核验的远端服务账号与 `root-runuser` / `sudo` / `direct` 之一。OAuth 使用明确的 `auth add <provider> --type oauth` 并打开受信窗口；API key 使用 `auth add <provider> --type api_key --label <Profile>`，但交接器先建立最终以该服务账号执行 `run-cloud` 的真实 TTY并观察到掩码提示，才打开宿主原生隐藏框。用户只粘贴一次 Key，不输入 SSH、路径、启动命令或标签。禁止先收集 Key 再管道到 SSH；交接器不回传原始命令、路径或子进程输出，只在未检测到回显且存在保存回执时返回 `SAVED`。提示缺失、输出超限、回显、取消或保存回执缺失都失败关闭。不能代开时先解释原因，用户明确继续后才允许一条原子命令回退。`run-cloud` 不继承登录前的模型密钥或共享 OAuth，但保留新服务账号真实 HOME，并机械检查三路 TTY；非 TTY 返回 `trusted_tty_required`。Qwen 旧 OAuth 规则继续按当前官方资料失败关闭。认证后把授权状态转为 `created`，重跑安全门禁，再由 Agent 非交互写入并验证明确的 provider 与模型；若边界漂移则重新应用基线。模型中文探测成功后必须通过 `run-checker` 再运行一次 `apply_chat_safety_baseline.py`，只收紧本轮 Profile 内新建的运行时缓存，然后再运行 `check_pre_qr_safety.py`；两项 PASS 才进入微信扫码。凭据来源或权限不能证明时停止。认证中断必须由用户在官方控制台确认结果后闭合台账，不能自动当作未创建。
@@ -170,7 +170,7 @@ python3 - check-prewrite --ledger <服务账号HOME内台账绝对路径>
 9. 以非 root 账号确认 `run-cloud` 中的 `-p <Profile> --version`、`-p <Profile> doctor` 和登录 shell 的 `command -v hermes` 均成功，记录非秘密的 Hermes 绝对路径。需要浏览器时验证 Playwright 依赖；不需要时确认使用 `--skip-browser` 且 Weixin 浏览器工具关闭。再通过真实 HOME 服务通道查看当前安装参数：
 
 ```bash
-python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway install --help
+python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway install --help
 ```
 
 10. 云端统一使用服务账号自己的 systemd 用户级服务并由 linger 保持注销后运行；`<HERMES绝对路径>` 必须替换为该服务账号登录 shell 实际解析的非空绝对路径。linger 已在第 2 步启用，此处只复核：
@@ -182,14 +182,14 @@ loginctl show-user <非root账号> -p Linger
 输出必须确认 `Linger=yes`。回到服务账号的真实登录会话，先安装但不启动：
 
 ```bash
-python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway install --no-start-now --no-start-on-login
+python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway install --no-start-now --no-start-on-login
 ```
 
 安装后必须确认用户服务 stopped + disabled，并读取 Hermes 生成的服务定义和 `systemctl --user show` 的有效属性，验证 `HERMES_HOME` 指向该账号的 `<Profile>` 目录、`ExecStart` 精确包含同一个 `--profile <Profile> gateway run`。这是 unit 内部调用 `hermes_cli.main` 的长参数，不得机械替换成用户命令里的隐藏全局 `-p`。用户级 unit 不应写 `User=`；实际身份由登录账号决定。随后由服务账号运行以下版本化防线；这是唯一允许的 systemd drop-in 修改，不手写 unit 或复制网上片段：
 
 ```bash
-python3 <V7.5.15发布目录>/skill/scripts/systemd_env_guard.py install --profile <Profile> --hermes <HERMES绝对路径> --expected-hermes-root <本轮专用Hermes根>
-python3 <V7.5.15发布目录>/skill/scripts/systemd_env_guard.py check-prestart --profile <Profile> --hermes <HERMES绝对路径> --expected-hermes-root <本轮专用Hermes根> --expect-enabled disabled
+python3 <V0.1发布目录>/scripts/systemd_env_guard.py install --profile <Profile> --hermes <HERMES绝对路径> --expected-hermes-root <本轮专用Hermes根>
+python3 <V0.1发布目录>/scripts/systemd_env_guard.py check-prestart --profile <Profile> --hermes <HERMES绝对路径> --expected-hermes-root <本轮专用Hermes根> --expect-enabled disabled
 ```
 
 脚本拒绝 systemd user manager、unit `Environment=`、任意 `EnvironmentFile=` 或初始进程环境中的 Weixin 覆盖、模型 `*_API_KEY` / `*_TOKEN` / `*_SECRET` / `*_PASSWORD`、`HERMES_SHARED_AUTH_DIR`、`CODEX_HOME`、AWS/Google 凭据文件和 XDG 配置目录回退；manager、unit 的可选 HOME 覆盖与实际进程的 `HOME` 都必须精确等于操作系统账号数据库中的服务账号 HOME。它为当前 Hermes 已知的微信与模型秘密键写入明确 `UnsetEnvironment=`。它只输出布尔值，不输出环境内容；已存在不同 drop-in、unit 不是当前账号所有的普通文件、daemon-reload 失败或任一布尔项失败时停止且不覆盖。`check-prestart` 必须在每次 start、restart 和持久化转换前重跑，不能只在初装时跑一次；它还扫描同一服务 UID 的所有 `/proc/*/cmdline`，启动前必须得到 `same_service_user_has_no_gateway_process=true`。
@@ -199,15 +199,15 @@ drop-in 安装并核验后，运行 `resource_ledger_guard.py seal-deployed --le
 11. 写入并核验人格、再次通过 `check-prestart` 后分路线启动：
    - **全新云端路线**：本地没有待切换的助手，执行 flow contract 中的 `run-service ... -- -p <Profile> gateway start`；不得制造一个虚假的“停止本地网关”步骤。
    - **已有助手迁移**：先准备云端但保持未启动，核验配置与人工回退；告诉用户将有一次短暂中断；先停止本机 gateway 并确认已停止，再启动云端服务。任何时刻都不能让本地和云端使用同一微信凭据同时轮询。
-启动完成后立即运行 `python3 <V7.5.15发布目录>/skill/scripts/systemd_env_guard.py check-runtime --profile <Profile> --hermes <HERMES绝对路径> --expected-hermes-root <本轮专用Hermes根> --expect-enabled disabled`。它只输出布尔值：核对暂存服务此时必须 active + disabled、unit 的有效 `ExecStart`、Profile、`HERMES_HOME`，再读取 MainPID、`/proc/<MainPID>/cmdline` 与 `/proc/<MainPID>/environ`，确认实际进程仍绑定同一个 Profile、没有从 manager/unit 继承微信或模型秘密，并且 `target_is_only_gateway_for_service_user=true`。发现同 UID 第二个前台 gateway、其他 unit 或无法完整扫描时失败；失败后立即通过 `run-service` 停止同一 Profile 服务并标记当前不可用。它不能观察其他系统账号或其他主机，因此测试微信身份还必须是本轮新授权且人工确认未在别处轮询。这个运行时检查不读取 Profile `.env` 的秘密值，也不能替代真实微信往返。
+启动完成后立即运行 `python3 <V0.1发布目录>/scripts/systemd_env_guard.py check-runtime --profile <Profile> --hermes <HERMES绝对路径> --expected-hermes-root <本轮专用Hermes根> --expect-enabled disabled`。它只输出布尔值：核对暂存服务此时必须 active + disabled、unit 的有效 `ExecStart`、Profile、`HERMES_HOME`，再读取 MainPID、`/proc/<MainPID>/cmdline` 与 `/proc/<MainPID>/environ`，确认实际进程仍绑定同一个 Profile、没有从 manager/unit 继承微信或模型秘密，并且 `target_is_only_gateway_for_service_user=true`。发现同 UID 第二个前台 gateway、其他 unit 或无法完整扫描时失败；失败后立即通过 `run-service` 停止同一 Profile 服务并标记当前不可用。它不能观察其他系统账号或其他主机，因此测试微信身份还必须是本轮新授权且人工确认未在别处轮询。这个运行时检查不读取 Profile `.env` 的秘密值，也不能替代真实微信往返。
 
 12. 在同一服务账号登录会话使用统一的用户服务命令管理云端。已停止服务再次 start 前运行 `check-prestart`，它要求 inactive；正在运行的服务 restart 前运行 `check-prerestart`，它要求 active。两者都必须用 `--expect-enabled enabled|disabled` 声明此阶段真实自启状态，命令成功后立即以相同预期执行 `check-runtime`。初次暂存验收用 `disabled`，完成第 13 步持久化后用 `enabled`；预期与事实不一致即停止：
 
 ```bash
-python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway start
-python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway stop
-python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway restart
-python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway status --deep
+python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway start
+python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway stop
+python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway restart
+python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway status --deep
 ```
 
 持久化后的普通重启顺序示例：带 `--expected-hermes-root <本轮专用Hermes根>` 的 `check-prerestart ... --expect-enabled enabled` → flow contract 中的 `run-service ... gateway restart` → 带同一 expected root 的 `check-runtime ... --expect-enabled enabled`。不得用 prestart 检查一个仍 active 的服务，也不得把 enabled/disabled 状态留给脚本猜测。
@@ -216,10 +216,10 @@ python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --roo
 13. 云端收发和稳定性验收通过后，先停止暂存服务并确认停止。强制重写为 enabled，但用 `--no-start-now` 保持 stopped；重写成功后必须检查这个新 unit，再显式启动：
 
 ```bash
-python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway install --force --no-start-now --start-on-login
-python3 <V7.5.15发布目录>/skill/scripts/systemd_env_guard.py check-prestart --profile <Profile> --hermes <HERMES绝对路径> --expected-hermes-root <本轮专用Hermes根> --expect-enabled enabled
-python3 <V7.5.15发布目录>/skill/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway start
-python3 <V7.5.15发布目录>/skill/scripts/systemd_env_guard.py check-runtime --profile <Profile> --hermes <HERMES绝对路径> --expected-hermes-root <本轮专用Hermes根> --expect-enabled enabled
+python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway install --force --no-start-now --start-on-login
+python3 <V0.1发布目录>/scripts/systemd_env_guard.py check-prestart --profile <Profile> --hermes <HERMES绝对路径> --expected-hermes-root <本轮专用Hermes根> --expect-enabled enabled
+python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway start
+python3 <V0.1发布目录>/scripts/systemd_env_guard.py check-runtime --profile <Profile> --hermes <HERMES绝对路径> --expected-hermes-root <本轮专用Hermes根> --expect-enabled enabled
 ```
 
 不得使用 `--start-now` 合并这四步，否则检查到的是重写前旧 unit 或启动后的既成进程。转换后再次检查 unit 的 HERMES_HOME、Profile、有效环境、linger 与 enabled/active 状态。重启前后各读取一次 `/proc/sys/kernel/random/boot_id`，只记录“是否改变”这一布尔值，不把标识符带出服务器；只有值确实改变，才能算真实重启。重启后先重跑 `check-runtime`，再从服务账号登录会话运行同一 Profile 的深度状态并完成新的微信真实任务。迁移路线全部通过后保持本机 gateway 停止，但保留本机配置以便人工回退。

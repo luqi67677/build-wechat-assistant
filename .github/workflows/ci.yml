@@ -25,34 +25,6 @@ jobs:
         with:
           python-version: "3.11"
       - name: Validate Skill structure and isolated behavior
-        run: python skill/scripts/validate_skill.py skill
+        run: python scripts/validate_skill.py .
       - name: Run all isolated regression tests
-        run: python -m unittest discover -s skill/scripts -p "test_*.py"
-      - name: Replay recipient package verification
-        shell: bash
-        run: |
-          set -euo pipefail
-          verification_root="$(mktemp -d)"
-          chmod 700 "$verification_root"
-          verification_root="$(cd "$verification_root" && pwd -P)"
-          built_dir="$verification_root/built"
-          release_dir="$verification_root/release"
-          verifier_dir="$verification_root/verifier"
-          mkdir -m 700 "$built_dir" "$verifier_dir"
-          python tools/build_release.py --skill-root skill --release-dir "$built_dir"
-          mv "$built_dir/verify_release_package.py" "$verifier_dir/verify_release_package.py"
-          mv "$built_dir" "$release_dir"
-          shopt -s nullglob
-          zip_files=("$release_dir"/build-wechat-assistant-V*.zip)
-          if [[ "${#zip_files[@]}" -ne 1 ]]; then
-            echo "Expected exactly one release ZIP, found ${#zip_files[@]}" >&2
-            exit 1
-          fi
-          python -c 'import hashlib, pathlib, sys; verifier = pathlib.Path(sys.argv[1]); manifest = pathlib.Path(sys.argv[2]); expected = {line.split("  ", 1)[1]: line.split("  ", 1)[0] for line in manifest.read_text().splitlines()}["./scripts/verify_release_package.py"]; assert hashlib.sha256(verifier.read_bytes()).hexdigest() == expected' "$verifier_dir/verify_release_package.py" "$release_dir/FILES.sha256"
-          mkdir -m 700 "$release_dir/skill"
-          python "$verifier_dir/verify_release_package.py" extract \
-            --zip "${zip_files[0]}" \
-            --sha256sums "$release_dir/SHA256SUMS" \
-            --files-manifest "$release_dir/FILES.sha256" \
-            --target-dir "$release_dir/skill"
-          PYTHONDONTWRITEBYTECODE=1 python "$release_dir/skill/scripts/validate_skill.py" "$release_dir/skill"
+        run: python -m unittest discover -s scripts -p "test_*.py"

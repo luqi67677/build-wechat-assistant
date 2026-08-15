@@ -41,9 +41,6 @@ class TimeoutContext:
 
 
 class EmptyContentAcceptContext:
-    class _bwa_confirmation_schema:
-        confirm = True
-
     async def elicit(self, **kwargs):
         return SimpleNamespace(action="accept", data=kwargs["schema"]())
 

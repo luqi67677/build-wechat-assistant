@@ -8,7 +8,7 @@
 - [ ] 相关成功流程
 - [ ] 一个错误流程
 - [ ] 一个关键边界
-- [ ] `skill/scripts/validate_skill.py`
+- [ ] `scripts/validate_skill.py .`
 - [ ] 没有提交秘密、私人内容或个人绝对路径
 
 ## 未验证

@@ -261,7 +261,7 @@ class ScopedFeishuTests(unittest.TestCase):
 
     def test_arbitrary_executable_cannot_pose_as_node(self) -> None:
         with self.assertRaisesRegex(FeishuError, "不是可核验的 Node.js"):
-            validate_node_runtime(self.fake)
+            validate_node_runtime(Path("/bin/sh"))
 
     def test_version_only_impostor_cannot_pose_as_node(self) -> None:
         impostor = Path(self.temp.name) / "node-impostor"

@@ -4,22 +4,22 @@
 
 ## 开始前
 
-1. 先阅读 `skill/SKILL.md` 的交互铁律、停止规则和按步骤读取说明。
+1. 先阅读 `SKILL.md` 的交互铁律、停止规则和按步骤读取说明。
 2. 只修改与问题直接相关的文件；不要顺手重构安全执行器。
 3. 不提交任何 API key、token、二维码、Cookie、`.env`、会话、记忆、日志、真实用户 ID、私人文档或个人绝对路径。
-4. 不向 `skill/` 添加 README、CHANGELOG 或发布材料；这些属于仓库层。
+4. 不向 Skill 文件树（`SKILL.md`、`scripts/`、`references/`、`assets/`、`agents/`）添加 README、CHANGELOG 或发布材料；这些属于仓库根或 `.github/`。
 
 ## 本地验证
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 python3 skill/scripts/validate_skill.py skill
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s skill/scripts -p 'test_*.py'
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_skill.py .
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_*.py'
 ```
 
 发布维护者还必须使用本次声明支持的干净 Hermes 启动器、其 MCP Python 和目标环境中的真实 Node.js：
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 python3 skill/scripts/validate_skill.py skill \
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_skill.py . \
   --hermes <干净Hermes启动器绝对路径> \
   --mcp-python <Hermes环境中的Python绝对路径> \
   --node <Node.js真实绝对路径>
