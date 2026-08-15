@@ -21,7 +21,7 @@ SPEC.loader.exec_module(CHECKER)
 class CloudPreflightTests(unittest.TestCase):
     def test_public_hostname_validation_rejects_urls_and_local_names(self) -> None:
         self.assertTrue(CHECKER.safe_public_hostname("api.deepseek.com"))
-        for value in ("https://api.deepseek.com", "localhost", "127.0.0.2", "api.local/path"):
+        for value in ("https://api.deepseek.com", "localhost", "127.0.0.3", "api.local/path"):
             self.assertFalse(CHECKER.safe_public_hostname(value))
 
     def test_all_safe_signals_pass_without_printing_host(self) -> None:

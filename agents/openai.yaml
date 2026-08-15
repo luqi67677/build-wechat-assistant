@@ -1,4 +1,4 @@
 interface:
   display_name: "微信 AI 助手搭建"
-  short_description: "V0.2｜小白五步搭建助手、知识库、编程与日常自动化"
+  short_description: "V0.3｜小白五步搭建助手、知识库、编程与日常自动化"
   default_prompt: "使用 $build-wechat-assistant 先用普通用户能看懂的中文解释每一步，再完成本地或云端、Hermes、模型、微信与人格的基础闭环；成功后先区分用户已经有、还没有或不确定，再按选择连接知识库、编程智能体或日常自动化，不提前扫描或安装依赖。"

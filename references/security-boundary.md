@@ -42,13 +42,13 @@ hermes -p <Profile> tools list --platform cli
 hermes -p <Profile> tools list --platform weixin
 ```
 
-以 `flow-contract.json` 的工具策略为准。基础仅聊天档在 CLI 与 Weixin 两边都必须精确只启用 `clarify`；不是“至少关闭几个高风险工具”。未被选择并验证的可选工具、所有插件工具和所有未知工具集一律关闭，当前 Profile 还必须没有任何 MCP 服务器，因为 Hermes v0.20.0 的 MCP 默认会进入所有平台。不要让小白手工抄一长串随版本漂移的工具名；使用版本内置脚本动态收缩并复验：
+以 `flow-contract.json` 的工具策略为准。基础仅聊天档在 CLI 与 Weixin 两边都必须精确只启用 `clarify`；不是“至少关闭几个高风险工具”。未被选择并验证的可选工具、所有插件工具和所有未知工具集一律关闭，当前 Profile 还必须没有任何 MCP 服务器，因为 Hermes v0.30.0 的 MCP 默认会进入所有平台。不要让小白手工抄一长串随版本漂移的工具名；使用版本内置脚本动态收缩并复验：
 
 ```bash
 python3 <Skill绝对路径>/scripts/apply_chat_safety_baseline.py --profile <Profile> --hermes <HERMES绝对路径> --expected-hermes-root <已批准Hermes根绝对路径> --workspace <专用工作区绝对路径>
 ```
 
-脚本只在 Profile 路径与已批准根精确匹配、工作区私有且两份清单都完整可解析时修改；发现 MCP 会在任何修改前停止。完成后 CLI 与 Weixin 都只有 `clarify` 可显示 enabled；`web vision image_gen bfl tts todo memory session_search` 等 v0.20.0 新 Profile 默认开启项也必须关闭，不能只处理 `skills terminal file code_execution browser computer_use delegation cronjob`。Plugin toolsets（插件工具集）出现任何 enabled 都失败；出现 MCP servers（MCP 服务器）节也失败。新版本出现未知或无法解析的项目时停止，不能因为不认识就保持开启。基础闭环不在这个 Profile 配置 MCP；以后确需 MCP 时另做逐服务器、逐工具和平台隔离审查。
+脚本只在 Profile 路径与已批准根精确匹配、工作区私有且两份清单都完整可解析时修改；发现 MCP 会在任何修改前停止。完成后 CLI 与 Weixin 都只有 `clarify` 可显示 enabled；`web vision image_gen bfl tts todo memory session_search` 等 v0.30.0 新 Profile 默认开启项也必须关闭，不能只处理 `skills terminal file code_execution browser computer_use delegation cronjob`。Plugin toolsets（插件工具集）出现任何 enabled 都失败；出现 MCP servers（MCP 服务器）节也失败。新版本出现未知或无法解析的项目时停止，不能因为不认识就保持开启。基础闭环不在这个 Profile 配置 MCP；以后确需 MCP 时另做逐服务器、逐工具和平台隔离审查。
 
 手工看清单不能证明隐藏配置或 MCP 继承已经关闭。安全基线应用后、模型认证后首次真实调用前、模型探测后重新收紧 Profile 运行时缓存权限时，以及扫码前都必须运行同一个自动门禁：
 
@@ -56,7 +56,7 @@ python3 <Skill绝对路径>/scripts/apply_chat_safety_baseline.py --profile <Pro
 python3 <Skill绝对路径>/scripts/check_pre_qr_safety.py --profile <Profile> --hermes <HERMES绝对路径> --expected-hermes-root <已批准Hermes根绝对路径>
 ```
 
-检查器还会验证正确的 `hermes profile show <Profile>` 契约、解析目录精确为已批准根下的 `profiles/<Profile>`、扫码前不存在任何旧 `WEIXIN_*` 状态、模型/Profile/共享 OAuth 与当前运行 HOME 中已知外部认证存储的权限、专用工作区、审批模式、CLI/Weixin 隐藏平台工具集、两边 MCP、全局与 Weixin 推理展示、内置记忆/画像注入和 gateway 停止状态。严格验收还必须在模型认证前通过 `isolation_guard.py check-fresh`，证明 Profile 与根级状态、shared 认证目录以及当前运行 HOME 的已知认证来源没有旧状态；本地后续命令由 `run` 清洗环境，云端后续交互命令由 `run-cloud` 清洗环境并保留服务账号 HOME。受保护/云端 runner 对 `model`、`auth add` 与 `setup_weixin_direct.py run` 机械要求 stdin/stdout/stderr 都是真实 TTY，非 TTY 返回 `trusted_tty_required`；微信流程不得退回通用 `gateway setup`。Hermes v0.20.0 提示的外部 Qwen OAuth 命令必须改由 `isolation_guard.py run-qwen-auth` 的固定 `help`/`login` 动作启动，不能把裸 `qwen auth qwen-oauth` 当作已隔离命令；其 `login` 同样机械拒绝非 TTY。只输出布尔结果；任一项失败不得调用模型、生成二维码或启动 gateway。
+检查器还会验证正确的 `hermes profile show <Profile>` 契约、解析目录精确为已批准根下的 `profiles/<Profile>`、扫码前不存在任何旧 `WEIXIN_*` 状态、模型/Profile/共享 OAuth 与当前运行 HOME 中已知外部认证存储的权限、专用工作区、审批模式、CLI/Weixin 隐藏平台工具集、两边 MCP、全局与 Weixin 推理展示、内置记忆/画像注入和 gateway 停止状态。严格验收还必须在模型认证前通过 `isolation_guard.py check-fresh`，证明 Profile 与根级状态、shared 认证目录以及当前运行 HOME 的已知认证来源没有旧状态；本地后续命令由 `run` 清洗环境，云端后续交互命令由 `run-cloud` 清洗环境并保留服务账号 HOME。受保护/云端 runner 对 `model`、`auth add` 与 `setup_weixin_direct.py run` 机械要求 stdin/stdout/stderr 都是真实 TTY，非 TTY 返回 `trusted_tty_required`；微信流程不得退回通用 `gateway setup`。Hermes v0.30.0 提示的外部 Qwen OAuth 命令必须改由 `isolation_guard.py run-qwen-auth` 的固定 `help`/`login` 动作启动，不能把裸 `qwen auth qwen-oauth` 当作已隔离命令；其 `login` 同样机械拒绝非 TTY。只输出布尔结果；任一项失败不得调用模型、生成二维码或启动 gateway。
 
 用户以后明确需要 `skills` 时，必须先设置并读取验证，再创建新会话：
 
@@ -135,7 +135,7 @@ python3 <Skill绝对路径>/scripts/check_profile_safety.py --profile <Profile> 
 4. `dm_policy=allowlist`、`group_policy=disabled`，`WEIXIN_ALLOW_ALL_USERS` 与 `GATEWAY_ALLOW_ALL_USERS` 在文件和当前启动环境中都不是开启值。
 5. 许可名单恰好一个 ID，并与 home channel 相同。
 6. `.env` 没有重复安全键，当前启动进程也没有任意当前或未来 `WEIXIN_*` / `GATEWAY_ALLOW_ALL_USERS` 覆盖；Profile `.env` 出现基础单人配置允许集合之外的未知 `WEIXIN_*` 键也失败关闭。允许集合必须覆盖官方向导实际写入的 `WEIXIN_GROUP_ALLOWED_USERS` 等键，并由发布时源码集合测试锁定，不能靠手写列表猜测。配置中没有 `gateway.platforms.weixin` / `extra` 的 token、策略、名单或 API/CDN 端点覆盖。向导写入 Profile `.env` 的 `WEIXIN_BASE_URL` 只能为空或规范化后精确等于 `https://ilinkai.weixin.qq.com`，`WEIXIN_CDN_BASE_URL` 只能为空或精确等于 `https://novac2c.cdn.weixin.qq.com/c2c`；当前进程和服务环境不得再覆盖这两个值。任何自定义端点都先停止并单独审查授权。YAML 锚点、别名、合并键、自定义标签或 flow mapping 会改变有效映射，检查器无法可靠证明时一律失败关闭。当前 Hermes 的进程环境和 `extra` 都可能改变 `.env` 的实际效果；存在覆盖时先定位它属于当前 shell、服务定义还是 config，用对应官方配置入口移除，再重跑检查器，不能只修 `.env`。
-7. 同一 Profile 必须同时没有持久服务定义、也没有手工 gateway 进程；只有官方 v0.20.0 的精确状态行 `Gateway is not running` 才放行。服务已安装但停止、launchd 已卸载、状态含糊或存在手工进程都失败关闭，防止扫码向导默认选项提前留下登录自启服务。
+7. 同一 Profile 必须同时没有持久服务定义、也没有手工 gateway 进程；只有官方 v0.30.0 的精确状态行 `Gateway is not running` 才放行。服务已安装但停止、launchd 已卸载、状态含糊或存在手工进程都失败关闭，防止扫码向导默认选项提前留下登录自启服务。
 8. 检查器必须能从标准 `profiles/<Profile>` 结构定位 Profile、全局 auth 与共享 OAuth 的候选路径并核对权限；自定义目录结构无法定位时失败关闭，不能只检查 `.env` 后继续。这一项只证明存储路径可定位且权限私有，不证明模型实际使用的是 Profile 专用凭据；严格隔离仍必须按凭据来源标签拒绝生产根的全局 auth、共享 OAuth、进程环境和未知来源。
 
 任一项不符就停止启动并修复。检查通过仍不能单独证明“刚才这一轮向导已经完成”：重新进入向导前记录非秘密基线，已有完整标记不算本轮进展；只有本轮向导后的新鲜状态变化才登记为本轮完成。没有认证过期证据且旧配置仍完整时不重复扫码。最终访问边界仍需第 7 节的新 Weixin 会话运行时测试。

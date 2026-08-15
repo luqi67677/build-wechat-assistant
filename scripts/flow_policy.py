@@ -11,7 +11,7 @@ CONTRACT_PATH = "references/flow-contract.json"
 
 # 版本一致性门禁：以下版本必须与 SKILL.md、flow-contract.json 和
 # agents/openai.yaml 同步；验证器负责阻止漏改。
-VERSION = "0.2"
+VERSION = "0.3"
 SKILL_TITLE = f"# 2026-08-15 微信 AI 助手搭建 V{VERSION}"
 
 
@@ -927,7 +927,7 @@ def validate_documents(
     require("主动状态陪同" in weixin and "报屏协议只作备用" in weixin, "微信连接仍把识别进度责任推给用户")
     require("已有 `WEIXIN_*` 标记只代表上一次配置" in weixin and "本轮启动后的新鲜状态变化" in weixin, "主动轮询仍会把旧配置误判为本轮完成")
     require("无法访问同一 Profile" in weixin and "报屏协议" in weixin, "无法观察状态时缺少安全陪同回退")
-    require("Select a platform to configure:" in weixin and "不是本 Skill 的 V0.2 直达路线" in weixin, "缺少误入全平台菜单的安全恢复")
+    require("Select a platform to configure:" in weixin and "不是本 Skill 的 V0.3 直达路线" in weixin, "缺少误入全平台菜单的安全恢复")
     require("用户不要滚动、不要按方向键、不要选 `Done`" in weixin, "仍可能让用户操作全平台菜单")
     require("微信连接成功" in weixin and "不表示第 4 步完成" in weixin, "未提醒扫码成功后仍需自动检查")
     require("五步全览" in skill and "▶ 第3步" in skill, "进度规范缺少完整五步进度条")
@@ -950,7 +950,7 @@ def validate_documents(
     require("图片、语音、视频和文件" in skill and "weixin/accounts" in security, "微信媒体与凭据缓存边界未披露")
     require("`{{...}}` 为零" in skill, "SOUL 写入缺少占位符清零门禁")
 
-    # V7.4.3 官方 v0.20.0 隔离实测修复锁定
+    # V7.4.3 官方 v0.30.0 隔离实测修复锁定
     require("hermes profile show <Profile>" in skill and "hermes profile show <Profile>" in setup, "Profile show 仍未使用位置参数")
     require("check_hermes_cli_contract.py" in skill and "官方干净 tag" in skill, "缺少当前 Hermes 干净根 CLI 能力闸")
     require("check_pre_qr_safety.py" in skill and "check_pre_qr_safety.py" in security, "扫码前缺少可执行安全门禁")
@@ -976,7 +976,7 @@ def validate_documents(
     require("模型探测可能新建权限过宽的 Profile 缓存" in skill and "模型探测成功后再运行一次 `apply_chat_safety_baseline.py`" in model, "模型探测后的运行时缓存权限未重新收紧")
     require("不得直接运行并捕获 `hermes -p <Profile> auth list`" in model, "模型凭据分类仍会把 auth list 捕获到 Agent 日志")
     require("任何远程或可能计费的模型调用之前" in model, "凭据来源没有先于远程模型探测")
-    require("Hermes Agent v0.20.0" in weixin and "Hermes Agent v0.29.1" not in weixin, "Weixin 向导参考版本必须是 v0.20.0")
+    require("Hermes Agent v0.30.0" in weixin and "Hermes Agent v0.39.1" not in weixin, "Weixin 向导参考版本必须是 v0.30.0")
     require("不得调用通用 `gateway setup`" in skill and "不显示平台、私聊、群聊" in skill, "微信流程仍可能进入通用菜单")
     require("Windows 用户不需要安装 Windows Terminal" in weixin and "系统自带的新控制台窗口" in weixin, "Windows 仍依赖用户安装或操作第三方终端")
     require("用户只扫码并在手机确认" in skill and "用户不选择私聊或群聊权限" in skill, "微信流程仍要求用户终端选择")

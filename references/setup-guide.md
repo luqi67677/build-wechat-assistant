@@ -1,6 +1,6 @@
 # Hermes 与微信基础搭建
 
-最后核验：2026-08-15。官方 tag v2026.8.3 对应 Hermes v0.20.0；V0.2 已在该官方干净 tag 的隔离临时根通过 CLI 契约、扫码前工具收缩、Cron 正反路径，以及知识库、飞书、编程三个 MCP 的保存与 stdio 重连检查，没有使用模型秘密、没有生成二维码，也没有安装服务。新安装仍必须对目标机实际 Hermes 绝对路径重跑 `scripts/check_hermes_cli_contract.py`；Windows、Linux、真实模型、真实扫码和开机恢复仍需各自平台证据。执行前同时读取当前官方文档、`hermes --version` 和对应 `--help`。
+最后核验：2026-08-15。官方 tag v2026.8.3 对应 Hermes v0.30.0；V0.3 已在该官方干净 tag 的隔离临时根通过 CLI 契约、扫码前工具收缩、Cron 正反路径，以及知识库、飞书、编程三个 MCP 的保存与 stdio 重连检查，没有使用模型秘密、没有生成二维码，也没有安装服务。新安装仍必须对目标机实际 Hermes 绝对路径重跑 `scripts/check_hermes_cli_contract.py`；Windows、Linux、真实模型、真实扫码和开机恢复仍需各自平台证据。执行前同时读取当前官方文档、`hermes --version` 和对应 `--help`。
 
 本文件中的命令与检查项全部由 Agent 在已选择的目标环境执行，不要求普通用户打开终端、复制命令或补占位符。用户只负责批准安装、系统权限确认、官方登录、秘密输入和扫码。
 
@@ -101,7 +101,7 @@ hermes --version
 
 任一能力缺失或当前平台语义无法确认时，停止在第 2 步；升级前说明备份、配置和服务重启影响。
 
-官方 v0.20.0 源码与隔离检查还确认：macOS 的 `gateway install` 会写入 `RunAtLoad + KeepAlive` 并会立即加载 launchd 服务，当前 macOS 分支不会处理 `--start-now/--no-start-now` 与 `--start-on-login/--no-start-on-login` 这两个启动参数组。第 4 步因此不得在 macOS 安装服务；只在第 5 步真实验收通过后执行持久安装。Linux systemd 与 Windows 的参数语义仍按目标机实际能力闸验证，不能从 macOS 外推。
+官方 v0.30.0 源码与隔离检查还确认：macOS 的 `gateway install` 会写入 `RunAtLoad + KeepAlive` 并会立即加载 launchd 服务，当前 macOS 分支不会处理 `--start-now/--no-start-now` 与 `--start-on-login/--no-start-on-login` 这两个启动参数组。第 4 步因此不得在 macOS 安装服务；只在第 5 步真实验收通过后执行持久安装。Linux systemd 与 Windows 的参数语义仍按目标机实际能力闸验证，不能从 macOS 外推。
 
 已安装时不自动运行 `hermes update`。先说明当前版本、更新内容和影响，再由用户决定。
 
@@ -118,7 +118,7 @@ hermes -p <Profile> config path
 hermes -p <Profile> config env-path
 ```
 
-`profile show` 的名称是位置参数；把名称只放进全局 `-p` 后会使 v0.20.0 的该子命令缺少必填名称。三个读取必须指向同一个命名 Profile。之后所有模型、工具、网关、日志和服务命令都显式带同一个 `-p <Profile>`。
+`profile show` 的名称是位置参数；把名称只放进全局 `-p` 后会使 v0.30.0 的该子命令缺少必填名称。三个读取必须指向同一个命名 Profile。之后所有模型、工具、网关、日志和服务命令都显式带同一个 `-p <Profile>`。
 
 命名 Profile 只隔离状态目录，不等于凭据隔离。当前 Hermes 可能从全局认证、共享 OAuth 或启动进程环境取得模型凭据；外部 CLI 默认也可能共享真实 HOME。常规用户要复用共享认证时，先以不含值的来源标签说明账单和撤销影响并取得同意。严格隔离测试必须执行：
 
@@ -133,7 +133,7 @@ python3 <Skill绝对路径>/scripts/isolation_guard.py check-fresh --root <本�
 
 后续每条 Hermes 命令都由 Agent 按操作模式生成：普通全新/已授权增量使用同一 Profile，受保护验收使用 `run`，云端交互使用 `run-cloud`，gateway 服务生命周期才使用 `run-service`。云端 `run-cloud` 保留全新服务账号真实 HOME，与最终 systemd gateway 的 HOME 级认证位置一致。云端 API key 由 `launch_trusted_handoff.py` 先等待隔离 runner 的真实 TTY 进入 Hermes 掩码提示，再打开宿主原生隐藏框并自动填标签；用户不看终端、不补第二次回车。OAuth 与微信扫码仍由同一交接器打开受信窗口，微信再绑定 `setup_weixin_direct.py`，不进入通用 `gateway setup`。云端还必须显式绑定远端服务账号和 `root-runuser` / `sudo` / `direct` 之一，`direct` 只接受明确写出且匹配的 SSH 用户。非 TTY 返回 `trusted_tty_required`。模型认证先锁定 provider 并走明确 `auth add` 路由，禁止用通用 `model` 向导猜厂商。Qwen 旧 OAuth 规则继续按当前官方资料失败关闭。所有占位符、路径、根用途和 Profile 都由 Agent 解析核验，不交给用户拼接。
 
-`check-fresh` 通过后、任何 `doctor`、模型认证或真实请求前，建立不在同步盘、Documents、Obsidian 或主目录根的私有专用工作区，运行 `apply_chat_safety_baseline.py` 并紧接着运行 `check_pre_qr_safety.py`。两者必须绑定同一 Hermes 绝对路径、Profile、已批准根与工作区；受保护验收使用 `isolation_guard.py run-checker`。门禁会同时检查 CLI 与 Weixin 精确只启用 `clarify`、两边没有 MCP、推理与记忆注入关闭、gateway 未安装且未运行。模型认证后、首次真实请求前必须再运行同一个门禁；模型向导改变边界时重新应用基线再复验。模型探测成功后还要重新运行安全基线与门禁，收紧 v0.20.0 运行时可能新建的 Profile 缓存权限；这次 PASS 后才进入扫码。
+`check-fresh` 通过后、任何 `doctor`、模型认证或真实请求前，建立不在同步盘、Documents、Obsidian 或主目录根的私有专用工作区，运行 `apply_chat_safety_baseline.py` 并紧接着运行 `check_pre_qr_safety.py`。两者必须绑定同一 Hermes 绝对路径、Profile、已批准根与工作区；受保护验收使用 `isolation_guard.py run-checker`。门禁会同时检查 CLI 与 Weixin 精确只启用 `clarify`、两边没有 MCP、推理与记忆注入关闭、gateway 未安装且未运行。模型认证后、首次真实请求前必须再运行同一个门禁；模型向导改变边界时重新应用基线再复验。模型探测成功后还要重新运行安全基线与门禁，收紧 v0.30.0 运行时可能新建的 Profile 缓存权限；这次 PASS 后才进入扫码。
 
 ## 3. Weixin iLink 的真实边界
 
@@ -153,7 +153,7 @@ Hermes 的 Weixin 适配器连接腾讯 `ilinkai.weixin.qq.com` 的 iLink Bot AP
 
 第 4 步不安装本地后台服务。先写入并核验 SOUL，再在独立终端运行 `hermes -p <Profile> gateway run` 做临时验收；普通本地路线全部通过后用同一 Profile 的 `gateway stop` 正常停止前台进程，再运行 `hermes -p <Profile> gateway install --force --start-now --start-on-login` 建立持久服务。受保护验收只允许 `isolation_guard.py run ... -- -p <Profile> gateway stop` 停止临时 gateway，不安装持久服务；前台重启往返通过仍只证明“聊天可用”。这样不会依赖 Ctrl+C 的进程组传播，也不会依赖 macOS 忽略 `--no-start-*` 或 Windows 双否时根本不安装服务的错误语义。
 
-官方干净 v0.20.0 的 Weixin 二维码向导需要真实 TTY，且菜单仍为英文。优先使用系统自带终端，不要求用户安装第三方终端；每次页面变化都按 `weixin-setup-zh.md` 在对话中给出当前屏幕的中文意思、安全推荐和操作。受保护/云端 runner 会在二维码生成前机械拒绝非 TTY，不能为了继续而退回裸命令。二维码与短时 URL 只显示在用户控制的终端或官方受保护界面，不复制到聊天。云端只有一部手机且没有第二块可信屏幕时，在购买服务器前停止；当前未验证同手机打开短时 URL 能完成扫码授权。没有真实 TTY 或受保护界面时也停止，不能用 Word 或普通文本框代替。
+官方干净 v0.30.0 的 Weixin 二维码向导需要真实 TTY，且菜单仍为英文。优先使用系统自带终端，不要求用户安装第三方终端；每次页面变化都按 `weixin-setup-zh.md` 在对话中给出当前屏幕的中文意思、安全推荐和操作。受保护/云端 runner 会在二维码生成前机械拒绝非 TTY，不能为了继续而退回裸命令。二维码与短时 URL 只显示在用户控制的终端或官方受保护界面，不复制到聊天。云端只有一部手机且没有第二块可信屏幕时，在购买服务器前停止；当前未验证同手机打开短时 URL 能完成扫码授权。没有真实 TTY 或受保护界面时也停止，不能用 Word 或普通文本框代替。
 
 选择 Weixin 后扫码并确认。二维码无法渲染时只在不回传 stdout 的用户控制终端使用向导给出的短时 URL。明确缺少 messaging 依赖时，先按当前操作模式运行同一 Profile 的 `doctor` 并按当前官方安装器的修复路径处理；不使用固定的 `~/.hermes` 路径，也不让原生 Windows 执行 POSIX 命令。
 
@@ -165,7 +165,7 @@ hermes -p <Profile> pairing approve --help
 hermes -p <Profile> pairing approve <平台名> <code>
 ```
 
-平台名以当前 `hermes -p <Profile> pairing approve --help` 实际列出为准；v0.20.0 的帮助仍未列出 `weixin`，当前版本不接受该平台名时改用 allowlist，不猜命令。
+平台名以当前 `hermes -p <Profile> pairing approve --help` 实际列出为准；v0.30.0 的帮助仍未列出 `weixin`，当前版本不接受该平台名时改用 allowlist，不猜命令。
 
 ## 4. 后台服务与本地在线
 

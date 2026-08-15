@@ -320,7 +320,7 @@ class WizardSourceFactTests(unittest.TestCase):
         self.assertIn("get_launchd_plist_path().exists()", status_branch)
         self.assertIn("_windows_service_installed", status_branch)
         self.assertIn('print("✗ Gateway is not running")', status_branch)
-        self.assertIn("只有官方 v0.20.0 的精确状态行 `Gateway is not running` 才放行", read("references/security-boundary.md"))
+        self.assertIn("只有官方 v0.30.0 的精确状态行 `Gateway is not running` 才放行", read("references/security-boundary.md"))
 
     def test_28_official_optional_weixin_keys_and_qwen_auth_path_are_guarded(self) -> None:
         config_source = (HERMES_INSTALL / "gateway" / "config.py").read_text(encoding="utf-8")

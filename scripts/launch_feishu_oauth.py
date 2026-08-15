@@ -173,7 +173,7 @@ def initialize_application(
                     process.kill()
                 raise FeishuOAuthError("飞书官方应用创建等待超时；请重新发起后完成页面确认。")
             try:
-                consume(lines.get(timeout=0.25))
+                consume(lines.get(timeout=0.35))
             except queue.Empty:
                 continue
         for reader in readers:

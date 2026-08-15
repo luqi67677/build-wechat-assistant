@@ -639,11 +639,11 @@ class FlowContractTests(unittest.TestCase):
 
     def test_89_stale_weixin_reference_version_is_rejected(self) -> None:
         text = self.read("references/weixin-setup-zh.md").replace(
-            "Hermes Agent v0.20.0",
-            "Hermes Agent v0.29.1",
+            "Hermes Agent v0.30.0",
+            "Hermes Agent v0.39.1",
             1,
         )
-        self.assert_document_rejected("references/weixin-setup-zh.md", text, "v0.20.0")
+        self.assert_document_rejected("references/weixin-setup-zh.md", text, "v0.30.0")
 
     def test_90_cloud_ledger_bootstrap_cannot_create_untracked_file(self) -> None:
         mutant = copy.deepcopy(self.contract)
