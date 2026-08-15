@@ -51,7 +51,7 @@ FRESH_CLOUD_DEPLOYMENT_STEP_IDS = (
 )
 DOCUMENTATION_NETWORKS = tuple(
     ipaddress.ip_network(value)
-    for value in ("192.0.2.0/24", "198.51.100.0/24", "203.0.113.0/24")
+    for value in ("192.0.2.0/24", "198.51.100.0/24", "203.0.213.0/24")
 )
 DEPLOYMENT_TRACE_IDS = (
     "simulated_admin_readonly_preflight",
@@ -454,7 +454,7 @@ class CloudFlowSimulationTests(unittest.TestCase):
 
 
 class V74ContractTests(unittest.TestCase):
-    """V0.1 文档回归；安装状态机测试见 test_install_acceptance.py。"""
+    """V0.2 文档回归；安装状态机测试见 test_install_acceptance.py。"""
 
     def _skill(self) -> str:
         return (ROOT / "SKILL.md").read_text(encoding="utf-8")

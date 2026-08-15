@@ -1,6 +1,6 @@
 {
   "schema_version": 7,
-  "skill_version": "0.1",
+  "skill_version": "0.2",
   "operation_mode_router": {
     "resolved_before_any_local_hermes_read": true,
     "uncertainty_defaults_to": "protected_acceptance",
@@ -712,12 +712,12 @@
     "interactive_runner": "isolation_guard.py run-cloud",
     "interactive_home_matches_gateway_runtime_home": true,
     "commands": {
-      "stage": "python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway install --no-start-now --no-start-on-login",
-      "start": "python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway start",
-      "stop": "python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway stop",
-      "restart": "python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway restart",
-      "status": "python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway status --deep",
-      "persist_stage": "python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway install --force --no-start-now --start-on-login"
+      "stage": "python3 <V0.2发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway install --no-start-now --no-start-on-login",
+      "start": "python3 <V0.2发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway start",
+      "stop": "python3 <V0.2发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway stop",
+      "restart": "python3 <V0.2发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway restart",
+      "status": "python3 <V0.2发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway status --deep",
+      "persist_stage": "python3 <V0.2发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway install --force --no-start-now --start-on-login"
     },
     "admin_commands": {
       "enable_linger_as_root": "loginctl enable-linger <非root账号>",

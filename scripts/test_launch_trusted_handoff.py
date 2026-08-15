@@ -135,7 +135,7 @@ class TrustedHandoffTests(unittest.TestCase):
                 HANDOFF.run_native_api_key_handoff(
                     [sys.executable, "-c", "pass"],
                     "deepseek",
-                    prompt_timeout=0.1,
+                    prompt_timeout=0.2,
                 )
         request.assert_not_called()
 

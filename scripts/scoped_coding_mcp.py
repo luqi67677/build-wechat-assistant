@@ -39,7 +39,8 @@ SENSITIVE_PATH_RE = re.compile(
     re.IGNORECASE,
 )
 CODEX_AUTH_RECOVERY = (
-    "Codex 当前未登录或登录已失效；主项目没有被修改。请让 Agent 在可信窗口启动 Codex 官方登录或设备登录，"
+    "Codex 当前未登录或登录已失效；主项目没有被修改。请让 Agent 先确认用户 Codex 使用方式："
+    "OpenAI 账号在可信窗口启动官方登录或设备登录，自定义模型（如 DeepSeek）走 `codex login --with-api-key`，"
     "确认 `codex login status` 成功后重试；不要在聊天里发送 API key 或 token。"
 )
 CODEX_HOME_WRITE_RECOVERY = (

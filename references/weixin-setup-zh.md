@@ -70,7 +70,7 @@ Agent 选择已存在的系统终端模拟器并打开一次性二维码窗口�
 
 ### 出现全平台菜单
 
-如果窗口出现 `Select a platform to configure:`、`Done`、Discord、WeCom 或 WhatsApp 等列表，说明误入了 Hermes 通用 `gateway setup`，不是本 Skill 的 V0.1 直达路线。即使列表里没有 Weixin，也不是用户操作错误。
+如果窗口出现 `Select a platform to configure:`、`Done`、Discord、WeCom 或 WhatsApp 等列表，说明误入了 Hermes 通用 `gateway setup`，不是本 Skill 的 V0.2 直达路线。即使列表里没有 Weixin，也不是用户操作错误。
 
 用户不要滚动、不要按方向键、不要选 `Done`。Agent 只终止当前精确 Profile 的这一个交互进程，重新执行直达助手；不得扩大到其他 Hermes 进程、其他 Profile 或已经配好的既有生产助手。
 

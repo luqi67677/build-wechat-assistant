@@ -9,7 +9,7 @@
 先通过已授权的本地终端或云端安全连接检查服务，再用微信真实消息确认：
 
 - 本地：`hermes -p <Profile> gateway status --deep`
-- 云端服务账号登录会话：`python3 <V0.1发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway status --deep`
+- 云端服务账号登录会话：`python3 <V0.2发布目录>/scripts/isolation_guard.py run-service --root <本轮专用Hermes根> --hermes <HERMES绝对路径> -- -p <Profile> gateway status --deep`
 
 只看服务状态不等于微信链路可用；只看微信回复也不能证明重启恢复正常。
 
