@@ -85,4 +85,4 @@ Skill 会引导你完成五步闭环，并在真实私聊往返通过后才标�
 
 ## 许可证
 
-[Apache-2.0](LICENSE)，Copyright 2026 luqi67677。
+[Apache-2.0](LICENSE)，Copyright 2026 焱七。
