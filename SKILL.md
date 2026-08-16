@@ -342,7 +342,7 @@ hermes -p <Profile> fallback --help
 
 > ⚠️ 扫码后只在微信官方页面核对应用名称、权限和确认按钮。页面与参考不一致时先停止并翻译，不凭按钮颜色猜测。二维码和登录 URL 属于短时登录凭据，不发送到聊天或日志。
 
-直达助手保存凭据，不把 token 贴进对话。直达助手自动写入 allowlist，仅保留本次扫码主人，群聊固定关闭；用户不选择私聊或群聊权限。扫码 SDK 新建状态后，助手只遍历当前 Profile 下精确的 `weixin/` 树，拒绝符号链接和异常所有者，并把目录收紧为 `0700`、普通文件收紧为 `0600`；不得递归修改整个 Hermes 根或其他 Profile。完成后进入 [references/security-boundary.md](references/security-boundary.md) 的扫码后启动前门禁，运行 `scripts/check_profile_safety.py`。检查器只输出真假，不输出 token、账号或用户 ID；它必须同时证明许可名单恰好一个主人、home channel 与主人相同、两级 allow-all 均关闭、群聊关闭、没有高优先级配置或 API/CDN 端点覆盖、秘密文件与目录权限合格。任一项失败就保持 gateway 停止。设置 home channel 只决定默认私聊目标，不会把普通个人微信变成可脚本控制的账号。
+直达助手保存凭据，不把 token 贴进对话。直达助手自动写入 allowlist，仅保留本次扫码主人，群聊固定关闭；用户不选择私聊或群聊权限。扫码 SDK 新建状态后，助手只遍历当前 Profile 下精确的 `weixin/` 树，拒绝符号链接和异常所有者，并把目录收紧为 `0700`、普通文件收紧为 `0600`；不得递归修改整个 Hermes 根或其他 Profile。完成后进入 [references/security-boundary.md](references/security-boundary.md) 的扫码后启动前门禁，运行 `scripts/check_profile_safety.py`；受保护验收与云端通过 `isolation_guard.py run-checker --checker check_profile_safety.py` 的清洗环境运行，不直接调用真实根。检查器只输出真假，不输出 token、账号或用户 ID；它必须同时证明许可名单恰好一个主人、home channel 与主人相同、两级 allow-all 均关闭、群聊关闭、没有高优先级配置或 API/CDN 端点覆盖、秘密文件与目录权限合格。任一项失败就保持 gateway 停止。设置 home channel 只决定默认私聊目标，不会把普通个人微信变成可脚本控制的账号。
 
 直达助手不显示平台、私聊、群聊、home channel、`Done`、立即启动或开机自启菜单，也不调用安装、启动、重启服务。看到“微信扫码确认成功”只代表手机授权返回；必须等助手自动保存固定安全策略、退出，再由 Agent 重跑启动前检查，确认 gateway 仍停止且服务状态与扫码前基线一致，才算第 4 步完成。主动告诉用户：“微信连接和安全权限已经自动保存；请回到对话等待检查，先不要发微信消息。”
 
