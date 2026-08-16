@@ -375,13 +375,21 @@ async def require_confirmation(ctx: Any, message: str) -> None:
     try:
         Confirmation = getattr(ctx, "_bwa_confirmation_schema", None)
         if Confirmation is None:
-            from pydantic import BaseModel, Field
+            try:
+                from pydantic import BaseModel, Field
 
-            class Confirmation(BaseModel):
-                # Hermes 当前的 MCP elicitation 客户端用 action 表示批准，
-                # 并在接受时返回空表单。默认 True 让空表单与批准动作兼容；
-                # 显式 false 仍按拒绝处理。
-                confirm: bool = Field(default=True, description="确认执行这一次操作")
+                class Confirmation(BaseModel):
+                    # Hermes 当前的 MCP elicitation 客户端用 action 表示批准，
+                    # 并在接受时返回空表单。默认 True 让空表单与批准动作兼容；
+                    # 显式 false 仍按拒绝处理。
+                    confirm: bool = Field(default=True, description="确认执行这一次操作")
+            except ImportError:
+                from dataclasses import dataclass
+
+                @dataclass
+                class Confirmation:
+                    # 无 pydantic 时的等价降级：仍保留默认 True 的 confirm 字段。
+                    confirm: bool = True
 
         result = await ctx.elicit(message=prompt, schema=Confirmation)
     except Exception as exc:
