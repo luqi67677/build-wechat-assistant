@@ -36,7 +36,7 @@
         "is_mock": true
       },
       "mock_order_id": "MOCK-ALIYUN-0001",
-      "mock_ip": "192.0.3.11"
+      "mock_ip": "192.0.2.11"
     },
     {
       "id": "tencent",
@@ -94,14 +94,14 @@
         "is_mock": true
       },
       "mock_order_id": "MOCK-HUAWEI-0001",
-      "mock_ip": "203.0.313.33"
+      "mock_ip": "203.0.113.33"
     }
   ],
   "existing_server": {
     "name": "用户已有服务器",
     "provider_required": false,
     "purchase_skipped": true,
-    "mock_ip": "192.0.3.44",
+    "mock_ip": "192.0.2.44",
     "os": "Ubuntu 24.04 LTS",
     "cpu": 2,
     "memory_gb": 4,
@@ -117,7 +117,7 @@
     "secret_requested_in_chat": false
   },
   "existing_server_connection_requirements": {
-    "endpoint": "192.0.3.44",
+    "endpoint": "192.0.2.44",
     "port": 22,
     "username": "mock-hermes-admin",
     "auth_method": "existing_ssh_key",

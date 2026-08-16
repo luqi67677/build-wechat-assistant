@@ -56,11 +56,17 @@ def replace_version(num_new: str, v_new: str) -> None:
     v_old = f"V{num_old}"
     for path in iter_text_files():
         text = path.read_text(encoding="utf-8")
-        new_text = (
-            text.replace(v_old, v_new)
-            .replace(f"v{num_old}", f"v{num_new}")
-            .replace(num_old, num_new)
-        )
+        # 只替换带 V/v 前缀的版本号，避免误伤裸数字（例如 RFC 文档 IP 地址）
+        new_text = text.replace(v_old, v_new).replace(f"v{num_old}", f"v{num_new}")
+        # 精确替换版本号字段，不做全局裸数字替换
+        if path.name == "flow_policy.py":
+            new_text = re.sub(
+                r'(^VERSION = ")[^"]+(")', rf"\g<1>{num_new}\g<2>", new_text, flags=re.MULTILINE
+            )
+        elif path.name == "flow-contract.json":
+            new_text = re.sub(
+                r'("skill_version": ")[^"]+(")', rf"\g<1>{num_new}\g<2>", new_text
+            )
         if new_text != text:
             path.write_text(new_text, encoding="utf-8")
             print(f"  已更新 {path.relative_to(SKILL_ROOT).as_posix()}")
