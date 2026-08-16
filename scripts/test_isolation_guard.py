@@ -30,6 +30,17 @@ class IsolationGuardTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp.cleanup()
 
+    def test_directory_empty_treats_missing_directory_as_empty(self) -> None:
+        # 回归：全新隔离根尚未创建 sessions/memories 时，check-fresh 应视为"空"
+        self.assertTrue(GUARD._directory_empty(self.parent / "does-not-exist"))
+        empty = self.parent / "empty"
+        empty.mkdir(mode=0o700)
+        self.assertTrue(GUARD._directory_empty(empty))
+        nonempty = self.parent / "nonempty"
+        nonempty.mkdir(mode=0o700)
+        (nonempty / "file.txt").write_text("x", encoding="utf-8")
+        self.assertFalse(GUARD._directory_empty(nonempty))
+
     def test_create_root_is_exclusive_private_and_inode_bound(self) -> None:
         checks = GUARD.create_root(str(self.root))
         self.assertTrue(all(checks.values()))

@@ -36,7 +36,7 @@ class HermesCliContractTests(unittest.TestCase):
         hermes = command[0]
         profile_dir = Path(env["HERMES_HOME"]) / "profiles" / "bwaclitest"
         if command == [hermes, "--version"]:
-            return CHECKER.subprocess.CompletedProcess(command, 0, "Hermes Agent v0.40.0 (test)\n", "")
+            return CHECKER.subprocess.CompletedProcess(command, 0, "Hermes Agent v0.20.0 (test)\n", "")
         if command[1:4] == ["profile", "create", "bwaclitest"]:
             return CHECKER.subprocess.CompletedProcess(command, 0, "created\n", "")
         if command[1:] == ["profile", "show", "bwaclitest"]:

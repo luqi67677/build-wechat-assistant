@@ -535,9 +535,11 @@ def _single_path(result: subprocess.CompletedProcess[str]) -> Path | None:
 def _directory_empty(path: Path) -> bool:
     try:
         info = path.lstat()
-        return stat.S_ISDIR(info.st_mode) and not stat.S_ISLNK(info.st_mode) and next(path.iterdir(), None) is None
+    except FileNotFoundError:
+        return True  # 目录尚不存在 = 空（全新根还未创建 sessions/memories）
     except OSError:
         return False
+    return stat.S_ISDIR(info.st_mode) and not stat.S_ISLNK(info.st_mode) and next(path.iterdir(), None) is None
 
 
 def _secret_shaped(key: str) -> bool:

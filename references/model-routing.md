@@ -30,7 +30,7 @@ hermes -p <Profile> config get delegation.provider
 hermes -p <Profile> fallback list
 ```
 
-某个键不存在时只记为“未配置”，不要把技术错误原样发给用户。不得直接运行并捕获 `hermes -p <Profile> auth list`：当前 v0.40.0 会输出 provider、凭据标签、认证类型和来源，虽然不显示 token，仍可能把用户自定义标签或账号线索写进 Agent 日志。来源分类只能使用本轮认证动作的受控记录、目标 Profile / 隔离根边界，以及当前版本能提供的布尔状态；无法无秘密证明时标记 `未知`。
+某个键不存在时只记为“未配置”，不要把技术错误原样发给用户。不得直接运行并捕获 `hermes -p <Profile> auth list`：当前 v0.20.0 会输出 provider、凭据标签、认证类型和来源，虽然不显示 token，仍可能把用户自定义标签或账号线索写进 Agent 日志。来源分类只能使用本轮认证动作的受控记录、目标 Profile / 隔离根边界，以及当前版本能提供的布尔状态；无法无秘密证明时标记 `未知`。
 
 先完成下方“凭据来源必须可解释”的分类和用户决定，才可运行 `hermes -p <Profile> doctor` 或最短真实请求。`doctor` 也可能访问 provider，不能当作免费、离线的配置读取。只向用户总结结论，不展示密钥、被遮罩的密钥或整份诊断输出。
 
@@ -118,7 +118,7 @@ Agent 按操作模式构造 direct / `run` / `run-cloud` 命令，并调用 `lau
 
 macOS 固定使用系统原生密码框（AppleScript `display dialog` 的 `hidden answer`），输入栏必须真实可见、可聚焦、可编辑，并在录入真实秘密前完成一次只含假值的可视验收；禁止使用 Tkinter `simpledialog`，因为部分系统 Python/Tk 组合会只显示按钮而不显示输入栏。Windows/Linux 才允许使用各自经实际验证的原生或 Tk 图形输入实现；任何平台看不到可编辑输入栏时都必须取消并修复，不能让用户反复试错。
 
-截至 2026-08-10，[Qwen Code 官方认证页](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/auth/)已标明 Qwen OAuth 免费层停止，并说明新版本移除了 `qwen auth` 命令；全新安装不得推荐或尝试这条登录路线。当前 Hermes v0.40.0 的模型向导仍可能打印旧提示 `qwen auth qwen-oauth`，这只能视为过期兼容提示。只有未来 Qwen 官方重新确认服务可用、目标 Qwen CLI 的 `auth --help` 也实际保留该动作时，才允许解析绝对路径并通过 `isolation_guard.py run-qwen-auth --mode help`/`login` 执行；runner 仍必须绑定当前模式 HOME、清除继承秘密，且 `login` 机械拒绝非 TTY。任一条件不满足就选择其他当前可用 provider，不能退回裸命令。
+截至 2026-08-10，[Qwen Code 官方认证页](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/auth/)已标明 Qwen OAuth 免费层停止，并说明新版本移除了 `qwen auth` 命令；全新安装不得推荐或尝试这条登录路线。当前 Hermes v0.20.0 的模型向导仍可能打印旧提示 `qwen auth qwen-oauth`，这只能视为过期兼容提示。只有未来 Qwen 官方重新确认服务可用、目标 Qwen CLI 的 `auth --help` 也实际保留该动作时，才允许解析绝对路径并通过 `isolation_guard.py run-qwen-auth --mode help`/`login` 执行；runner 仍必须绑定当前模式 HOME、清除继承秘密，且 `login` 机械拒绝非 TTY。任一条件不满足就选择其他当前可用 provider，不能退回裸命令。
 
 ### 凭据来源必须可解释
 
@@ -135,6 +135,20 @@ macOS 固定使用系统原生密码框（AppleScript `display dialog` 的 `hidd
 来源分类以当前 Hermes 能安全提供的认证状态、目标 Profile、全局认证存储、共享 OAuth 存储和启动进程环境的“是否存在”证据为准，只记录 provider 和来源类别，不记录值、掩码值、文件内容或完整路径。当前 CLI 不能可靠区分时直接标记 `未知`，不要从“请求成功”反推来源。不得直接运行并捕获 `hermes -p <Profile> auth list`，也不得捕获顶层 `status --deep`；后者会汇总认证、路径、环境和平台元数据，不能因为没有显示完整 token 就当作可公开日志。
 
 在任何认证、`doctor` 或真实请求之前，先应用并通过 `apply_chat_safety_baseline.py`，确认 CLI 与 Weixin 同时精确只启用 `clarify`。认证后、第一次真实中文请求前再次运行 `check_pre_qr_safety.py`；向导导致工具、MCP、推理或记忆边界漂移时，重新应用基线再检查。只有第二次 PASS 才运行明确“不调用任何工具”的最短中文请求。模型探测成功后再运行一次 `apply_chat_safety_baseline.py`：它只收紧已批准 Profile 内模型运行时新建的 `cache`、`auth.json` 与 Weixin 状态目录，不触碰其他 Profile 或宿主认证目录；随后再运行 `check_pre_qr_safety.py`。两项 PASS 前不得进入微信扫码。
+
+## 认证后写入默认模型
+
+认证（`auth add`）成功后，默认模型不会自动生效；Agent 必须非交互写入并读回验证，不能只凭 auth 保存就进入真实对话：
+
+```bash
+hermes -p <Profile> config set model.provider <provider>
+hermes -p <Profile> config set model.default <本轮实时核验的模型名>
+hermes -p <Profile> config get model.provider   # 读回验证
+hermes -p <Profile> config get model.default
+```
+
+`model.default` 必须使用本轮从厂商官方页面实时核验的当前模型名，不写死示例名；provider 与模型未读回一致就不得运行真实中文对话。
+
 
 ## 6. 三个可实现的模型角色
 

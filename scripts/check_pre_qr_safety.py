@@ -31,7 +31,7 @@ PROFILE_RE = re.compile(r"[a-z0-9]{2,32}\Z")
 ANSI_RE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 TOOL_LINE_RE = re.compile(r"^\s*[✓✗]?\s*(enabled|disabled)\s+([A-Za-z0-9_-]+)\b")
 SAFE_ENABLED_TOOLSETS = {"clarify"}
-# v0.40.0 的 tools disable 会保留一个运行时 check_fn 约束的 kanban 名称；
+# v0.20.0 的 tools disable 会保留一个运行时 check_fn 约束的 kanban 名称；
 # 它只有在顶层 toolsets 明确包含 kanban 或调度环境存在时才注册工具。
 SAFE_PLATFORM_TOOLSET_FORMS = (
     {"clarify"},
