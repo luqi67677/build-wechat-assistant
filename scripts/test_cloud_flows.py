@@ -454,7 +454,7 @@ class CloudFlowSimulationTests(unittest.TestCase):
 
 
 class V74ContractTests(unittest.TestCase):
-    """V0.3 文档回归；安装状态机测试见 test_install_acceptance.py。"""
+    """V0.4 文档回归；安装状态机测试见 test_install_acceptance.py。"""
 
     def _skill(self) -> str:
         return (ROOT / "SKILL.md").read_text(encoding="utf-8")

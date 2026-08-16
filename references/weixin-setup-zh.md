@@ -1,6 +1,6 @@
 # Weixin 对话直达扫码说明
 
-最后核验：2026-08-10。参考环境：官方 tag v2026.8.3、Hermes Agent v0.30.0。上游仍会变化；执行前读取当前官方 Weixin 文档、实际 `hermes --version` 和本机运行组件。
+最后核验：2026-08-10。参考环境：官方 tag v2026.8.3、Hermes Agent v0.40.0。上游仍会变化；执行前读取当前官方 Weixin 文档、实际 `hermes --version` 和本机运行组件。
 
 ## 目录
 
@@ -21,7 +21,7 @@ Hermes 当前通过官方 Weixin 集成连接腾讯 iLink Bot API。扫码后得
 
 用户不输入终端或 SSH 命令，不选择平台，不选择私聊权限，不选择群聊权限，不填写 user ID，也不选择 `Done`、启动或开机自启。二维码和短时登录 URL 是临时登录凭据，不进入聊天、Agent 工具输出或日志，也不通过普通截图分享。
 
-这里仍需要一个临时系统窗口，是因为 Hermes v0.30.0 的扫码函数要求真实 TTY 才能安全渲染二维码；TTY 只是二维码显示载体，不是要求用户学习终端。没有能隔离显示二维码的可信窗口时必须停止，不能用 Word、TextEdit、记事本或普通网页文本框代替。
+这里仍需要一个临时系统窗口，是因为 Hermes v0.40.0 的扫码函数要求真实 TTY 才能安全渲染二维码；TTY 只是二维码显示载体，不是要求用户学习终端。没有能隔离显示二维码的可信窗口时必须停止，不能用 Word、TextEdit、记事本或普通网页文本框代替。
 
 ## 2. Agent 自动完成什么
 
@@ -70,7 +70,7 @@ Agent 选择已存在的系统终端模拟器并打开一次性二维码窗口�
 
 ### 出现全平台菜单
 
-如果窗口出现 `Select a platform to configure:`、`Done`、Discord、WeCom 或 WhatsApp 等列表，说明误入了 Hermes 通用 `gateway setup`，不是本 Skill 的 V0.3 直达路线。即使列表里没有 Weixin，也不是用户操作错误。
+如果窗口出现 `Select a platform to configure:`、`Done`、Discord、WeCom 或 WhatsApp 等列表，说明误入了 Hermes 通用 `gateway setup`，不是本 Skill 的 V0.4 直达路线。即使列表里没有 Weixin，也不是用户操作错误。
 
 用户不要滚动、不要按方向键、不要选 `Done`。Agent 只终止当前精确 Profile 的这一个交互进程，重新执行直达助手；不得扩大到其他 Hermes 进程、其他 Profile 或已经配好的既有生产助手。
 

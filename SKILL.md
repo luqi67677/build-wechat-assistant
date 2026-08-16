@@ -3,7 +3,7 @@ name: build-wechat-assistant
 description: 用简体中文为普通用户搭建、测试、修复或迁移基于 Hermes Agent 与 Weixin iLink 的微信 AI 助手。适用于选择本地或云端运行、安装与诊断 Hermes、实时核验并配置模型、通过安全二维码流程连接微信、定制 SOUL 人格、验证真实私聊与访问控制；基础闭环后还能按需连接 Obsidian 或云文档知识库、Codex 等编程智能体，以及早安简报、AI 日报、提醒和固定任务等日常自动化。也适用于验收该流程能否安全交付给小白或开源。执行前先检查当前 Hermes CLI、官方文档、宿主工具能力和目标环境，不凭本 Skill 的历史快照执行易变步骤。
 ---
 
-# 2026-08-15 微信 AI 助手搭建 V0.3
+# 2026-08-15 微信 AI 助手搭建 V0.4
 
 ## 产品目标
 
@@ -297,7 +297,7 @@ hermes -p <Profile> fallback --help
 
 模型认证前先从当前 `auth add --help`、Hermes 官方资料和厂商官方资料锁定唯一 provider 与认证类型。OAuth 使用明确的 `hermes -p <Profile> auth add <provider> --type oauth`，API key 使用同一 provider 的隐藏输入路径；未锁定 provider 时禁止启动通用 `model` 向导，因为它可能自动进入未选择的厂商登录。Agent 按模式构造 direct / `run` / `run-cloud` 命令，再调用 `scripts/launch_trusted_handoff.py`。云端 API key 由脚本等待远端 `Paste your API key:` 掩码提示后才打开原生隐藏框，自动传入 `--label <Profile>`，只在保存回执存在且未检测到回显时返回 `SAVED`；用户只输入一次秘密。OAuth 与二维码才打开不回传 stdout 的临时系统窗口。OAuth URL、device code（设备码）和回调参数不得进入聊天、截图或 Agent 记录。打开失败时先说明宿主缺少安全窗口控制；只有此时才给一条已填好且不含秘密的原子命令作为末级回退。认证后由 Agent 非交互写入并读取验证明确的 provider 与模型，不再让用户进入通用选择向导。
 
-截至 2026-08-10，Qwen Code 官方认证页已标明 Qwen OAuth 免费层停止且新版本移除 `qwen auth`，全新安装不得把它当成可用登录路线；优先选择当前 Hermes 与厂商官方共同确认仍可用的 OAuth 或 API key。Hermes v0.30.0 仍可能显示旧提示 `qwen auth qwen-oauth`；只有未来官方重新开放、目标 Qwen CLI 的帮助页也实际保留该动作时，才允许使用 `isolation_guard.py run-qwen-auth` 的 `help`/`login` 固定动作。受保护验收与云端路线始终不得复制裸 `qwen` 命令；runner 本地绑定隔离 OS HOME、云端绑定最终 gateway 的服务账号 HOME并清除继承秘密，`login` 还必须通过三路 TTY 检查。然后用同一 Profile 做一次中文本地对话。配置了视觉模型时，再真实测试一张图片。未通过则停在本步骤。
+截至 2026-08-10，Qwen Code 官方认证页已标明 Qwen OAuth 免费层停止且新版本移除 `qwen auth`，全新安装不得把它当成可用登录路线；优先选择当前 Hermes 与厂商官方共同确认仍可用的 OAuth 或 API key。Hermes v0.40.0 仍可能显示旧提示 `qwen auth qwen-oauth`；只有未来官方重新开放、目标 Qwen CLI 的帮助页也实际保留该动作时，才允许使用 `isolation_guard.py run-qwen-auth` 的 `help`/`login` 固定动作。受保护验收与云端路线始终不得复制裸 `qwen` 命令；runner 本地绑定隔离 OS HOME、云端绑定最终 gateway 的服务账号 HOME并清除继承秘密，`login` 还必须通过三路 TTY 检查。然后用同一 Profile 做一次中文本地对话。配置了视觉模型时，再真实测试一张图片。未通过则停在本步骤。
 
 完成时告诉用户：“✓ 第 3 步已完成：模型已在目标环境配置并通过真实测试。下一步：[第 4/5 步] 连接微信。”
 
@@ -323,9 +323,9 @@ hermes -p <Profile> fallback --help
 
 > Hermes 的官方 Weixin 适配器使用腾讯 iLink Bot API 连接一个独立机器人身份。它不等同于企业微信，也不会把扫码者的普通个人微信变成脚本账号；不使用注入或协议破解，但仍不能承诺绝对零风险。
 
-先检测当前 Hermes 版本、微信运行组件和系统能否提供不会回传内容的临时二维码窗口。2026-08-09 核验的官方 tag v2026.8.3 对应 Hermes v0.30.0；本 Skill 已在该官方干净 tag 的隔离临时根通过 `scripts/check_hermes_cli_contract.py`，但不把这项无模型、无扫码的 CLI 契约测试冒充真实微信验收。每台目标机器仍要对实际 Hermes 绝对路径重跑该检查器。当前 Hermes 的二维码登录函数需要真实 TTY；这是二维码显示载体的限制，不是让用户操作终端菜单的理由。
+先检测当前 Hermes 版本、微信运行组件和系统能否提供不会回传内容的临时二维码窗口。2026-08-09 核验的官方 tag v2026.8.3 对应 Hermes v0.40.0；本 Skill 已在该官方干净 tag 的隔离临时根通过 `scripts/check_hermes_cli_contract.py`，但不把这项无模型、无扫码的 CLI 契约测试冒充真实微信验收。每台目标机器仍要对实际 Hermes 绝对路径重跑该检查器。当前 Hermes 的二维码登录函数需要真实 TTY；这是二维码显示载体的限制，不是让用户操作终端菜单的理由。
 
-在二维码登录和首次启动网关之前先设置并读取验证 `display.language=zh`。它只能翻译 Hermes 当前已经接入 i18n 的少量静态消息；v0.30.0 参考源码中仍有英文向导和系统提示，不能把设置成功误称为整个 CLI 或系统消息已经中文化。普通全新/已授权增量直接执行同一 Profile 的 `config set/get display.language`；受保护验收通过 `isolation_guard.py run ... -- -p <Profile> config ...`；云端全新/小号测试通过 `isolation_guard.py run-cloud ... -- -p <Profile> config ...`。推理、记忆和工作区不在此手抄设置，统一由第 2 步安全基线写入并由扫码前门禁复验。
+在二维码登录和首次启动网关之前先设置并读取验证 `display.language=zh`。它只能翻译 Hermes 当前已经接入 i18n 的少量静态消息；v0.40.0 参考源码中仍有英文向导和系统提示，不能把设置成功误称为整个 CLI 或系统消息已经中文化。普通全新/已授权增量直接执行同一 Profile 的 `config set/get display.language`；受保护验收通过 `isolation_guard.py run ... -- -p <Profile> config ...`；云端全新/小号测试通过 `isolation_guard.py run-cloud ... -- -p <Profile> config ...`。推理、记忆和工作区不在此手抄设置，统一由第 2 步安全基线写入并由扫码前门禁复验。
 
 - **本地路线**：macOS、Windows、Linux 桌面由 Agent 调用 `scripts/launch_trusted_handoff.py --kind weixin-setup`，它再运行 `scripts/setup_weixin_direct.py` 直达 Weixin。不得调用通用 `gateway setup`，不得出现全平台选择或权限选择菜单。
 - **Windows 路线**：不要求用户安装 Windows Terminal、PowerShell 扩展或其他第三方终端。Agent 使用系统创建的新控制台作为临时二维码显示窗；窗口必须保留标准输入输出，不能把二维码重定向到 Agent、日志或空设备。用户不输入命令，也不在窗口里选任何项目。

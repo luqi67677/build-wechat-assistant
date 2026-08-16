@@ -30,7 +30,7 @@ hermes -p <Profile> config get delegation.provider
 hermes -p <Profile> fallback list
 ```
 
-某个键不存在时只记为“未配置”，不要把技术错误原样发给用户。不得直接运行并捕获 `hermes -p <Profile> auth list`：当前 v0.30.0 会输出 provider、凭据标签、认证类型和来源，虽然不显示 token，仍可能把用户自定义标签或账号线索写进 Agent 日志。来源分类只能使用本轮认证动作的受控记录、目标 Profile / 隔离根边界，以及当前版本能提供的布尔状态；无法无秘密证明时标记 `未知`。
+某个键不存在时只记为“未配置”，不要把技术错误原样发给用户。不得直接运行并捕获 `hermes -p <Profile> auth list`：当前 v0.40.0 会输出 provider、凭据标签、认证类型和来源，虽然不显示 token，仍可能把用户自定义标签或账号线索写进 Agent 日志。来源分类只能使用本轮认证动作的受控记录、目标 Profile / 隔离根边界，以及当前版本能提供的布尔状态；无法无秘密证明时标记 `未知`。
 
 先完成下方“凭据来源必须可解释”的分类和用户决定，才可运行 `hermes -p <Profile> doctor` 或最短真实请求。`doctor` 也可能访问 provider，不能当作免费、离线的配置读取。只向用户总结结论，不展示密钥、被遮罩的密钥或整份诊断输出。
 
@@ -118,7 +118,7 @@ Agent 按操作模式构造 direct / `run` / `run-cloud` 命令，并调用 `lau
 
 macOS 固定使用系统原生密码框（AppleScript `display dialog` 的 `hidden answer`），输入栏必须真实可见、可聚焦、可编辑，并在录入真实秘密前完成一次只含假值的可视验收；禁止使用 Tkinter `simpledialog`，因为部分系统 Python/Tk 组合会只显示按钮而不显示输入栏。Windows/Linux 才允许使用各自经实际验证的原生或 Tk 图形输入实现；任何平台看不到可编辑输入栏时都必须取消并修复，不能让用户反复试错。
 
-截至 2026-08-10，[Qwen Code 官方认证页](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/auth/)已标明 Qwen OAuth 免费层停止，并说明新版本移除了 `qwen auth` 命令；全新安装不得推荐或尝试这条登录路线。当前 Hermes v0.30.0 的模型向导仍可能打印旧提示 `qwen auth qwen-oauth`，这只能视为过期兼容提示。只有未来 Qwen 官方重新确认服务可用、目标 Qwen CLI 的 `auth --help` 也实际保留该动作时，才允许解析绝对路径并通过 `isolation_guard.py run-qwen-auth --mode help`/`login` 执行；runner 仍必须绑定当前模式 HOME、清除继承秘密，且 `login` 机械拒绝非 TTY。任一条件不满足就选择其他当前可用 provider，不能退回裸命令。
+截至 2026-08-10，[Qwen Code 官方认证页](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/auth/)已标明 Qwen OAuth 免费层停止，并说明新版本移除了 `qwen auth` 命令；全新安装不得推荐或尝试这条登录路线。当前 Hermes v0.40.0 的模型向导仍可能打印旧提示 `qwen auth qwen-oauth`，这只能视为过期兼容提示。只有未来 Qwen 官方重新确认服务可用、目标 Qwen CLI 的 `auth --help` 也实际保留该动作时，才允许解析绝对路径并通过 `isolation_guard.py run-qwen-auth --mode help`/`login` 执行；runner 仍必须绑定当前模式 HOME、清除继承秘密，且 `login` 机械拒绝非 TTY。任一条件不满足就选择其他当前可用 provider，不能退回裸命令。
 
 ### 凭据来源必须可解释
 

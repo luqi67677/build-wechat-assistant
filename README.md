@@ -2,7 +2,7 @@
 
 用简体中文陪普通用户搭建自己的微信 AI 助手：先完成本地或云端、Hermes、模型、Weixin iLink 与人格五步基础闭环，再按需增加知识库、受控 Codex 编程和日常自动化。
 
-> 当前版本：**V0.3**。许可证：[Apache-2.0](LICENSE)。仓库版本唯一来源为 [`VERSION`](VERSION)。
+> 当前版本：**V0.4**。许可证：[Apache-2.0](LICENSE)。仓库版本唯一来源为 [`VERSION`](VERSION)。
 
 ## 它解决什么
 
