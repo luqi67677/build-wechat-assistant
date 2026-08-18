@@ -6,6 +6,7 @@ import io
 import os
 import sys
 import tempfile
+import types
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -96,6 +97,55 @@ class DirectWeixinSetupTests(unittest.TestCase):
         self.assertNotIn("secret-id", output)
         self.assertIn("██  ██", output)
         self.assertIn("微信扫码确认成功", output)
+
+    def test_inner_setup_redacts_stderr_during_qr_login(self) -> None:
+        """qr_login 即使只向 stderr 打印短时 URL，也必须被脱敏。"""
+
+        async def fake_qr_login(_path: str) -> dict[str, str]:
+            print("请打开 https://liteapp.example/temporary 完成授权", file=sys.stderr)
+            print("微信连接成功，account_id=secret-id", file=sys.stderr)
+            return {
+                "account_id": "bot-account",
+                "token": "secret-token",
+                "base_url": DIRECT.OFFICIAL_BASE_URL,
+                "user_id": "owner-user",
+            }
+
+        weixin = types.ModuleType("gateway.platforms.weixin")
+        weixin.check_weixin_requirements = lambda: True  # type: ignore[attr-defined]
+        weixin.qr_login = fake_qr_login  # type: ignore[attr-defined]
+        platforms = types.ModuleType("gateway.platforms")
+        platforms.weixin = weixin  # type: ignore[attr-defined]
+        gateway = types.ModuleType("gateway")
+        gateway.platforms = platforms  # type: ignore[attr-defined]
+        hermes_gateway = types.ModuleType("hermes_cli.gateway")
+        saved: dict[str, str] = {}
+        hermes_gateway.save_env_value = saved.__setitem__  # type: ignore[attr-defined]
+        hermes_cli = types.ModuleType("hermes_cli")
+        hermes_cli.gateway = hermes_gateway  # type: ignore[attr-defined]
+        fake_modules = {
+            "qrcode": types.ModuleType("qrcode"),
+            "gateway": gateway,
+            "gateway.platforms": platforms,
+            "gateway.platforms.weixin": weixin,
+            "hermes_cli": hermes_cli,
+            "hermes_cli.gateway": hermes_gateway,
+        }
+        with tempfile.TemporaryDirectory() as raw:
+            profile = Path(raw) / "wechatassistant"
+            profile.mkdir(mode=0o700)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with patch.dict(sys.modules, fake_modules), patch.dict(
+                os.environ, {"HERMES_HOME": str(profile)}
+            ), patch("sys.stdout", new=stdout), patch("sys.stderr", new=stderr):
+                DIRECT.inner_setup(profile)
+        leaked = stderr.getvalue()
+        self.assertNotIn("https://", leaked)
+        self.assertNotIn("secret-id", leaked)
+        self.assertIn("[短时登录地址已隐藏]", leaked)
+        self.assertIn("微信扫码确认成功。", leaked)
+        self.assertEqual(saved["WEIXIN_TOKEN"], "secret-token")
 
     def test_runtime_python_is_resolved_from_official_posix_launcher(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

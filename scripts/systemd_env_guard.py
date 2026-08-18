@@ -118,7 +118,8 @@ def resolve_expected_binding(profile: str, hermes: str, expected_hermes_root: st
         and (not hasattr(os, "geteuid") or marker_info.st_uid == os.geteuid())
         and (os.name == "nt" or not stat.S_IMODE(marker_info.st_mode) & 0o077)
         and isinstance(marker, dict)
-        and marker.get("schema_version") == 1
+        and marker.get("schema_version") == 2
+        and marker.get("purpose") == "cloud-service"
         and marker.get("root_device") == root_info.st_dev
         and marker.get("root_inode") == root_info.st_ino
         and marker.get("owner_uid") == getattr(os, "geteuid", lambda: -1)()

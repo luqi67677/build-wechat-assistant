@@ -75,6 +75,8 @@ REQUIRED_FILES = frozenset(
         "scripts/test_pre_qr_safety.py",
         "scripts/test_systemd_env_guard.py",
         "scripts/test_set_profile_env_key.py",
+        "scripts/test_release.py",
+        "scripts/test_validate_skill.py",
         "scripts/test_source_facts.py",
         "scripts/test_verify_release_package.py",
         "scripts/validate_skill.py",
@@ -92,6 +94,8 @@ REPO_LEVEL_FILES = frozenset(
         "SECURITY.md",
     }
 )
+
+VERSION_FILE_RE = re.compile(r"V(\d+\.\d+)")
 
 
 def _is_repo_file(relative: str) -> bool:
@@ -228,6 +232,21 @@ def add_failure(failures: list[str], message: str) -> None:
 
 def read_text(root: Path, relative: str) -> str:
     return (root / relative).read_text(encoding="utf-8")
+
+
+def validate_version_file(root: Path, failures: list[str]) -> None:
+    """仓库根 VERSION 文件内容必须与 flow_policy.VERSION 一致。"""
+    try:
+        raw = (root / "VERSION").read_text(encoding="utf-8")
+    except OSError:
+        add_failure(failures, "VERSION 文件缺失或不可读")
+        return
+    match = VERSION_FILE_RE.fullmatch(raw.strip())
+    if not match:
+        add_failure(failures, "VERSION 文件格式必须为 V<主版本.次版本>")
+        return
+    if match.group(1) != VERSION:
+        add_failure(failures, f"VERSION 文件 V{match.group(1)} 与 flow_policy.VERSION {VERSION} 不一致")
 
 
 def validate_structure(root: Path, failures: list[str]) -> None:
@@ -451,6 +470,7 @@ def main(argv: list[str] | None = None) -> int:
     failures: list[str] = []
     validate_optional_runtime_arguments(mcp_python, node, failures)
     validate_structure(root, failures)
+    validate_version_file(root, failures)
     if failures:
         for item in failures:
             print(f"FAIL {item}")

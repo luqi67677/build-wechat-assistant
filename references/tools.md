@@ -122,7 +122,7 @@ hermes -p <Profile> mcp add bwa_scoped_knowledge --command <Hermes Python绝对�
 
 官方安装命令中的 `latest` 只表示安装当日从官方包读取当前版本，文档不得把某个现场版本号写成永久最低版本。创建应用由 Agent 使用 `scripts/launch_feishu_oauth.py init --node <Node.js真实绝对路径>` 安全代办；交接器会用这份固定 Node.js 运行时在隔离凭据目录中执行 `lark-cli config init --new --name <独立Profile> --force-init`，等待飞书官方网页完成账号确认，并且不把页面链接、App Secret 或 CLI 原始输出带回对话。若用户已登录，只说明“无需重新登录，请在官方页面确认当前账号”，不能把等待状态误报为登录失败，也不能把旧 Profile 可读误报成新专用应用已完成。
 
-需要用户身份访问个人文档库时，先根据当前命令的真实错误只收集本次动作缺少的 scope，再使用 `scripts/launch_feishu_oauth.py plan --node <同一Node.js真实绝对路径>` 核对 Node.js、Profile、隔离凭据目录、Hermes 根和精确 scope；计划通过后运行同参数的 `launch`。交接器在内存中启动 `lark-cli auth login --no-wait --json`，自动打开飞书官方授权或应用权限页面并等待完成，只输出 `AUTHORIZED` 或“仍需在官方页面确认权限”的安全状态；授权 URL、设备码和 token 不进入聊天、Agent 日志或临时文件。用户只核对当前飞书账号、应用名称与权限文字，不复制链接或设备码。交接器只允许文档读取、文档创建和创建固定知识库父节点所需的最小 scope；需要更多业务权限时必须另行审查，不能用 `--domain all` 代替。
+需要用户身份访问个人文档库时，先根据当前命令的真实错误只收集本次动作缺少的 scope，再使用 `scripts/launch_feishu_oauth.py plan --node <同一Node.js真实绝对路径>` 核对 Node.js、Profile、隔离凭据目录、Hermes 根和精确 scope；计划通过后运行同参数的 `launch`。交接器在内存中启动 `lark-cli auth login --no-wait --json`，自动打开飞书官方授权或应用权限页面并等待完成，只输出 `AUTHORIZED` 或“仍需在官方页面确认权限”的安全状态；授权 URL、设备码和 token 不进入聊天、Agent 日志或临时文件。用户只核对当前飞书账号、应用名称与权限文字，不复制链接或设备码。交接器只允许文档读取、文档创建和创建固定知识库父节点所需的最小 scope；需要更多业务权限时必须另行审查，不能用 `--domain all` 代替。坦诚说明残留暴露面：lark-cli 当前只接受 `--device-code` 命令参数，设备码在轮询期间对本机同用户进程的进程列表可见；它是短时一次性凭据，风险窗口以分钟计，但不承诺完全不可见。lark-cli 未来支持从 stdin 或环境变量传入设备码后，必须切换到该通道。
 
 先向用户说明两层不同的授权：飞书“只读权限”只表示不能修改内容，不自动等于“只能读取用户指定的一篇文档”；模型问答还意味着文档内容可能发送给当前模型提供商。首次把私有文档交给外部模型前，必须单独说明目标模型、发送范围和用途并取得明确同意。执行器还要在每次实际读取正文前通过 MCP elicitation 再确认一次，拒绝或通道不支持确认时不得启动飞书进程。用户只同意飞书授权时，不得把它推定为同意发送给模型。
 

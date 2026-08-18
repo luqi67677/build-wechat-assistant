@@ -261,7 +261,8 @@ class KnowledgeStore:
         descriptor, raw_temp = tempfile.mkstemp(prefix=".bwa-", dir=target.parent)
         temp = Path(raw_temp)
         try:
-            os.fchmod(descriptor, mode & 0o777)
+            if os.name != "nt":
+                os.fchmod(descriptor, mode & 0o777)
             with os.fdopen(descriptor, "wb") as handle:
                 handle.write(data)
                 handle.flush()
@@ -445,23 +446,25 @@ def build_server(store: KnowledgeStore) -> Any:
         )
         return store.search_notes(query)
 
-    @server.tool()
-    async def create_knowledge_note(path: str, content: str, ctx: McpContext) -> dict[str, str]:
-        """经用户逐次确认后，在获准知识库中新建一篇可回滚笔记。"""
-        await require_confirmation(ctx, "将在已批准知识库中新建一篇笔记，不会覆盖同名文件。是否确认？")
-        return store.create_note(path, content)
+    if store.writable:
 
-    @server.tool()
-    async def update_knowledge_note(path: str, content: str, expected_sha256: str, ctx: McpContext) -> dict[str, str]:
-        """经用户逐次确认后更新笔记；版本变化时拒绝覆盖，并返回回滚编号。"""
-        await require_confirmation(ctx, "将更新已批准知识库中的一篇笔记，并保留可校验备份。是否确认？")
-        return store.update_note(path, content, expected_sha256)
+        @server.tool()
+        async def create_knowledge_note(path: str, content: str, ctx: McpContext) -> dict[str, str]:
+            """经用户逐次确认后，在获准知识库中新建一篇可回滚笔记。"""
+            await require_confirmation(ctx, "将在已批准知识库中新建一篇笔记，不会覆盖同名文件。是否确认？")
+            return store.create_note(path, content)
 
-    @server.tool()
-    async def rollback_knowledge_change(change_id: str, ctx: McpContext) -> dict[str, str]:
-        """经用户逐次确认后回滚本连接创建的变更；文件有后续修改时拒绝。"""
-        await require_confirmation(ctx, "将回滚本连接此前记录的一项知识库变更。是否确认？")
-        return store.rollback(change_id)
+        @server.tool()
+        async def update_knowledge_note(path: str, content: str, expected_sha256: str, ctx: McpContext) -> dict[str, str]:
+            """经用户逐次确认后更新笔记；版本变化时拒绝覆盖，并返回回滚编号。"""
+            await require_confirmation(ctx, "将更新已批准知识库中的一篇笔记，并保留可校验备份。是否确认？")
+            return store.update_note(path, content, expected_sha256)
+
+        @server.tool()
+        async def rollback_knowledge_change(change_id: str, ctx: McpContext) -> dict[str, str]:
+            """经用户逐次确认后回滚本连接创建的变更；文件有后续修改时拒绝。"""
+            await require_confirmation(ctx, "将回滚本连接此前记录的一项知识库变更。是否确认？")
+            return store.rollback(change_id)
 
     return server
 

@@ -222,10 +222,21 @@ class IsolationGuardTests(unittest.TestCase):
             ["profile", "create", "smalltest", "--no-alias", "--no-skills"],
             ["profile", "show", "smalltest"],
             ["-p", "smalltest", "config", "path"],
-            ["--profile", "smalltest", "gateway", "setup"],
         ):
             with self.subTest(command=command):
                 GUARD.validate_isolated_command(command)
+        # 回归：通用 gateway setup 被 Skill 判死刑，runner 必须机械拒绝
+        for command in (
+            ["--profile", "smalltest", "gateway", "setup"],
+            ["-p", "smalltest", "gateway", "setup", "--yes"],
+        ):
+            with self.subTest(command=command), self.assertRaisesRegex(
+                GUARD.IsolationError, "generic_gateway_setup_forbidden"
+            ):
+                GUARD.validate_isolated_command(command)
+        self.assertFalse(
+            GUARD.sensitive_interactive_command(["-p", "smalltest", "gateway", "setup"])
+        )
         for command in (
             ["profile", "list"],
             ["model"],
@@ -432,7 +443,7 @@ class IsolationGuardTests(unittest.TestCase):
         fake = self.parent / "hermes"
         fake.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
         fake.chmod(0o700)
-        for tail in (["model"], ["gateway", "setup"], ["auth", "add", "openai"]):
+        for tail in (["model"], ["auth", "add", "openai"]):
             with self.subTest(tail=tail), patch.object(
                 GUARD, "trusted_tty_available", return_value=False
             ), patch.object(GUARD.subprocess, "run") as run:

@@ -181,6 +181,32 @@ class ScopedKnowledgeTests(unittest.TestCase):
             asyncio.run(require_confirmation(TimeoutContext(), "确认"))
 
     @unittest.skipUnless(HAS_MCP, "当前 Python 环境没有 MCP SDK")
+    def test_read_only_server_registers_exactly_three_read_tools(self) -> None:
+        # 回归：只读模式必须只暴露 3 个读取工具；references/tools.md 的门禁
+        # 会在清单与选择不一致时取消安装，多注册写入工具会让只读知识库永远装不上。
+        read_only = KnowledgeStore.open(self.root, self.state, writable=False)
+        names = sorted(tool.name for tool in build_server(read_only)._tool_manager.list_tools())
+        self.assertEqual(
+            names,
+            ["list_knowledge_notes", "read_knowledge_note", "search_knowledge_notes"],
+        )
+
+    @unittest.skipUnless(HAS_MCP, "当前 Python 环境没有 MCP SDK")
+    def test_writable_server_registers_all_six_tools(self) -> None:
+        names = sorted(tool.name for tool in build_server(self.store)._tool_manager.list_tools())
+        self.assertEqual(
+            names,
+            [
+                "create_knowledge_note",
+                "list_knowledge_notes",
+                "read_knowledge_note",
+                "rollback_knowledge_change",
+                "search_knowledge_notes",
+                "update_knowledge_note",
+            ],
+        )
+
+    @unittest.skipUnless(HAS_MCP, "当前 Python 环境没有 MCP SDK")
     def test_model_transfer_decline_stops_before_local_read(self) -> None:
         read_tool = next(
             tool for tool in build_server(self.store)._tool_manager.list_tools()

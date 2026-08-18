@@ -15,12 +15,29 @@
 
 ## 1. 先确认宿主范围
 
-- **Codex 本地任务**：支持本地 `SKILL.md`，可使用发现目录链接。
+- **Codex 本地任务**：支持本地 `SKILL.md`，用户级目录 `~/.codex/skills/`，可使用发现目录链接。
+- **Kimi Code**：支持本地 Skills，用户级目录 `~/.agents/skills/`，项目级目录 `<项目>/.agents/skills/`。
+- **Claude Code**：支持本地 Skills，用户级目录 `~/.claude/skills/`，项目级目录 `<项目>/.claude/skills/`。
 - **Hermes**：支持本地 Skills，但发现根目录由当前 `HERMES_HOME`/Profile 决定。
 - **普通 ChatGPT 网页或桌面聊天**：不能因为名字叫 ChatGPT 就假定能读取本机 `SKILL.md`。只有当前产品明确提供本地 Agent Skills 和目录链接时才纳入。
 - **其他工具**：先查当前官方文档；不支持目录链接的宿主不纳入单一源方案，不退回复制。
 
 ## 2. 外部接收者安装
+
+### 2.1 从 GitHub 公开仓库直接安装（推荐给普通用户）
+
+仓库公开后，外部用户最简单的安装方式是把仓库克隆到自己 Agent 的 skills 目录，目录名保持 `build-wechat-assistant`。以下命令全部由 Agent 执行，普通用户只在对话里确认目标宿主：
+
+| Agent | 用户级 skills 目录 | 触发方式 |
+|---|---|---|
+| Codex | `~/.codex/skills/` | `$build-wechat-assistant` 或自然语言 |
+| Kimi Code | `~/.agents/skills/`（项目级 `<项目>/.agents/skills/`） | 自然语言描述目标 |
+| Claude Code | `~/.claude/skills/`（项目级 `<项目>/.claude/skills/`） | 自然语言描述目标 |
+| Hermes | `<HERMES_HOME>/skills/`（以 `hermes -p <Profile> config path` 实际解析为准） | `/build-wechat-assistant` 或自然语言 |
+
+安装后重新加载宿主，先确认 skills 列表出现 `build-wechat-assistant`，再按第 6 节验收能读到 `references/flow-contract.json`、`assets/SOUL.zh-CN.md` 和脚本。克隆安装的用户升级时由 Agent 在该目录执行 `git pull`；目标目录被手工改动过时先 `git status` 核对，不强制覆盖。
+
+### 2.2 不可变发布包安装（推荐给需要核验完整性的场景）
 
 外部发布物必须是不可变版本集合：`build-wechat-assistant-V<版本>.zip`、ZIP 的 `SHA256SUMS`、列出包内每个相对路径与 SHA-256 的 `FILES.sha256`，以及从同一版本单独导出的 `verify_release_package.py` 验证器。发布前验证者必须在全新临时目录用该验证器不覆盖解压，再运行第 7 节验证；还要确认包内没有 `.env`、auth、token、二维码、会话、记忆、日志、备份、本机绝对路径或真实用户 ID，验证脚本和夹具只能含假数据。ZIP 文件名和 Skill 内四处版本必须一致。
 
@@ -123,7 +140,7 @@ python3 scripts/validate_skill.py --hermes <官方干净Hermes启动器绝对路
 
 `python3 -m unittest` 会同时运行 `test_source_facts.py`：本机装有 Hermes 时，它核验文档引用的向导英文文案、配置键、环境变量和隐藏参数说明与真实安装一致；未安装时自动跳过并标记未验证，不伪造通过。正式发布记录必须保存带 `--hermes` 的 PASS 与版本号，不能只摘录普通 `PASS build-wechat-assistant`。
 
-**版本同步清单**：修改版本号或标题日期时必须同步四处——`SKILL.md` 标题、`scripts/flow_policy.py` 的 `VERSION`、`references/flow-contract.json` 的 `skill_version`、`agents/openai.yaml` 的 `short_description`。验证器与契约测试强制核对，漏改任何一处即 FAIL。
+**版本同步清单**：修改版本号或标题日期时必须同步五处——`SKILL.md` 标题、`VERSION` 文件、`scripts/flow_policy.py` 的 `VERSION` 与 `SKILL_TITLE`、`references/flow-contract.json` 的 `skill_version`、`agents/openai.yaml` 的 `short_description`。验证器与契约测试强制核对，漏改任何一处即 FAIL。
 
 ## 8. Vault 移动后的恢复
 

@@ -19,6 +19,12 @@ SPEC = importlib.util.spec_from_file_location("systemd_env_guard", MODULE_PATH)
 assert SPEC and SPEC.loader
 GUARD = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(GUARD)
+
+ISO_SPEC = importlib.util.spec_from_file_location("isolation_guard", ROOT / "scripts" / "isolation_guard.py")
+assert ISO_SPEC and ISO_SPEC.loader
+ISO_GUARD = importlib.util.module_from_spec(ISO_SPEC)
+ISO_SPEC.loader.exec_module(ISO_GUARD)
+
 CANARY = "systemd-manager-secret-canary"
 
 
@@ -52,6 +58,45 @@ class SystemdEnvGuardTests(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.temp.cleanup()
+
+    def test_real_isolation_guard_cloud_root_passes_marker_validation(self) -> None:
+        # 跨脚本集成回归：systemd_env_guard 必须接受 isolation_guard 真实创建的
+        # cloud-service 根（schema_version=2 + purpose=cloud-service），
+        # 防止两个脚本各自演进导致云端路线在真实根上永远失败。
+        base = self.home.resolve()
+        cloud_home = base / "cloud-home"
+        cloud_home.mkdir(mode=0o700)
+        root = cloud_home / "isolated-root"
+        with patch.object(ISO_GUARD, "_service_account_home", return_value=cloud_home):
+            checks = ISO_GUARD.create_root(str(root), purpose="cloud-service")
+        self.assertTrue(all(checks.values()))
+
+        profile_home = root / "profiles" / "wechatassistant"
+        profile_home.mkdir(parents=True, mode=0o700)
+        config = profile_home / "config.yaml"
+        config.write_text("model: test\n", encoding="utf-8")
+        config.chmod(0o600)
+        launcher = self.home / "hermes"
+        launcher.write_text("#!/usr/bin/python3\n", encoding="utf-8")
+        launcher.chmod(0o700)
+        result = completed(f"{config}\n")
+        with patch.object(GUARD, "_service_account_home", return_value=cloud_home), patch.object(
+            GUARD.subprocess, "run", return_value=result
+        ):
+            resolved_home, interpreter = GUARD.resolve_expected_binding(
+                "wechatassistant", str(launcher), str(root)
+            )
+        self.assertEqual(resolved_home, profile_home)
+        self.assertEqual(interpreter, "/usr/bin/python3")
+
+        # 同一脚本创建的 local-test 根不得被 systemd 门禁接受
+        local_root = base / "local-root"
+        with patch.object(ISO_GUARD, "_temporary_roots", return_value=(base,)):
+            ISO_GUARD.create_root(str(local_root), purpose="local-test")
+        with patch.object(GUARD.subprocess, "run", return_value=result), self.assertRaisesRegex(
+            GUARD.GuardError, "expected_hermes_root_marker_invalid"
+        ):
+            GUARD.resolve_expected_binding("wechatassistant", str(launcher), str(local_root))
 
     def test_manager_only_weixin_override_is_rejected_without_value_output(self) -> None:
         def runner(_arguments: list[str]) -> subprocess.CompletedProcess[str]:
@@ -116,7 +161,8 @@ class SystemdEnvGuardTests(unittest.TestCase):
         marker.write_text(
             json.dumps(
                 {
-                    "schema_version": 1,
+                    "schema_version": 2,
+                    "purpose": "cloud-service",
                     "root_device": root_info.st_dev,
                     "root_inode": root_info.st_ino,
                     "owner_uid": os.geteuid(),
@@ -161,7 +207,8 @@ class SystemdEnvGuardTests(unittest.TestCase):
         wrong_marker.write_text(
             json.dumps(
                 {
-                    "schema_version": 1,
+                    "schema_version": 2,
+                    "purpose": "cloud-service",
                     "root_device": wrong_info.st_dev,
                     "root_inode": wrong_info.st_ino,
                     "owner_uid": os.geteuid(),

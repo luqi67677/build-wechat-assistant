@@ -334,7 +334,12 @@ def inner_setup(profile_dir: Path) -> None:
     from hermes_cli.gateway import save_env_value
 
     print("请用微信扫描下面的二维码；不需要在窗口里选择任何菜单。")
-    with contextlib.redirect_stdout(RedactingWriter(sys.stdout)):
+    # stdout 与 stderr 都必须脱敏：qr_login 若向 stderr 打印短时 URL，
+    # 只包装 stdout 会让凭据绕过 RedactingWriter。
+    with (
+        contextlib.redirect_stdout(RedactingWriter(sys.stdout)),
+        contextlib.redirect_stderr(RedactingWriter(sys.stderr)),
+    ):
         credentials = asyncio.run(qr_login(str(expected)))
     safe_credentials = validate_credentials(credentials)
     reharden_weixin_store(expected)

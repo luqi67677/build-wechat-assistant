@@ -276,7 +276,8 @@ class CodingStore:
         descriptor, raw_temp = tempfile.mkstemp(prefix=".bwa-", dir=path.parent)
         temp = Path(raw_temp)
         try:
-            os.fchmod(descriptor, 0o600)
+            if os.name != "nt":
+                os.fchmod(descriptor, 0o600)
             with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
                 json.dump(payload, handle, ensure_ascii=False, sort_keys=True)
                 handle.flush()

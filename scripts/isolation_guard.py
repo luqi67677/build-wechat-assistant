@@ -438,10 +438,14 @@ def sensitive_interactive_command(command: list[str]) -> bool:
     if len(command) < 3 or command[0] not in {"-p", "--profile"}:
         return False
     tail = command[2:]
-    return (
-        tail[:1] == ["model"]
-        or tail[:2] == ["gateway", "setup"]
-        or tail[:2] == ["auth", "add"]
+    return tail[:1] == ["model"] or tail[:2] == ["auth", "add"]
+
+
+def _is_generic_gateway_setup(command: list[str]) -> bool:
+    """通用 `gateway setup` 被本 Skill 明确判死刑；runner 机械拒绝，不只靠文档约束。"""
+    return any(
+        command[index] == "gateway" and command[index + 1 : index + 2] == ["setup"]
+        for index in range(max(0, len(command) - 1))
     )
 
 
@@ -492,6 +496,8 @@ def is_protected_foreground_stop(command: list[str]) -> bool:
 
 
 def validate_isolated_command(command: list[str]) -> None:
+    if _is_generic_gateway_setup(command):
+        raise IsolationError("generic_gateway_setup_forbidden")
     if tuple(command) in GLOBAL_READ_ONLY_COMMANDS:
         return
     if len(command) == 5 and command[:2] == ["profile", "create"]:

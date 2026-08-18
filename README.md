@@ -57,19 +57,26 @@ build-wechat-assistant/
 
 ## 安装
 
-把仓库克隆到 Codex 的 skills 目录（默认 `~/.codex/skills/`），目录名保持 `build-wechat-assistant`：
+本 Skill 是一份标准 Agent Skill（含 `SKILL.md` 的目录），可安装到任何支持本地 Skills 的 Agent。把仓库克隆到你的 Agent 的 skills 目录，目录名保持 `build-wechat-assistant`：
 
-```bash
-git clone https://github.com/luqi67677/build-wechat-assistant.git ~/.codex/skills/build-wechat-assistant
-```
+| Agent | skills 目录（用户级） | 安装命令 |
+|---|---|---|
+| Codex | `~/.codex/skills/` | `git clone https://github.com/luqi67677/build-wechat-assistant.git ~/.codex/skills/build-wechat-assistant` |
+| Kimi Code | `~/.agents/skills/` | `git clone https://github.com/luqi67677/build-wechat-assistant.git ~/.agents/skills/build-wechat-assistant` |
+| Claude Code | `~/.claude/skills/` | `git clone https://github.com/luqi67677/build-wechat-assistant.git ~/.claude/skills/build-wechat-assistant` |
+| Hermes | `<HERMES_HOME>/skills/`（默认 `~/.hermes/skills/`，以 `hermes -p <Profile> config path` 实际解析为准） | `git clone https://github.com/luqi67677/build-wechat-assistant.git ~/.hermes/skills/build-wechat-assistant` |
 
-安装后重新加载 Codex，输入下面的触发句即可使用。
+- Kimi Code 也支持项目级安装：克隆到项目根目录的 `.agents/skills/build-wechat-assistant`，只在该项目内生效。
+- 其他 Agent：先查其官方文档确认支持本地 Skills 目录，再按同样方式克隆；不支持本地 Skills 的宿主无法使用。
+- 想验证安装包完整性或了解多宿主共享一份目录的维护方式，见 [`references/install-skill.md`](references/install-skill.md)。
+
+安装后重新加载 Agent（Codex 重启或新建任务；Kimi Code / Claude Code 重开会话；Hermes 对目标 Profile 新开会话），确认 Agent 的 skills 列表里出现 `build-wechat-assistant` 即可使用。
 
 ## 使用
 
-直接向 Codex 描述目标，例如：
+直接向你的 Agent 描述目标，例如：
 
-- 「使用 $build-wechat-assistant 帮我搭一个微信 AI 助手」
+- 「使用 $build-wechat-assistant 帮我搭一个微信 AI 助手」（`$` 前缀是 Codex 的写法；Kimi Code、Claude Code 用自然语言描述目标即可触发，例如「帮我搭一个微信 AI 助手」）
 - 「把现有的微信助手迁移到云端」
 - 「给已有助手加一个知识库」
 

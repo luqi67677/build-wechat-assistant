@@ -863,7 +863,7 @@ def validate_documents(
     require("剪贴板历史" in model and "不能证明" in model, "API key 流程仍虚假承诺剪贴板安全")
     require("](官方直达地址)" not in model and "核验后的官方 HTTPS 链接" in model, "模型推荐模板仍包含不可点击的链接占位符")
 
-    # V7.3.1 修复锁定：以下检查防止本次审判发现的问题回潮
+    # 回归锁定：以下检查防止逐项审判发现的问题回潮
     require("报屏协议" in skill and "报屏协议" in weixin, "缺少无回传条件下的逐屏报屏陪同协议")
     require("Desktop 安装后必须由 Agent 在新进程环境验证" in skill and "Desktop 安装后必须由 Agent 在新进程环境验证" in setup, "Desktop 路线缺少 Agent 代执行的 CLI 入口验证")
     require("临时借用任一受信设备" in cloud, "单手机用户缺少云端扫码出路")
@@ -900,7 +900,7 @@ def validate_documents(
     require("codex exec --ephemeral --sandbox workspace-write" not in tools, "Codex 文档仍保留会在当前 CLI 解析失败的旧参数顺序")
     require("第一问只选内容，不先问城市、时间、频率" in tools and "任何任务都先手动触发并由微信真实收到" in tools, "日常自动化仍可能先问参数或未手动送达就启用")
 
-    # V7.3.2 修复锁定：第二轮魔鬼测试发现的问题
+    # 回归锁定：第二轮对抗性自测发现的问题
     require("扫码后启动前门禁" in security, "缺少扫码后启动前的中间门禁")
     require("scripts/check_profile_safety.py --profile <Profile>" in security, "访问控制缺少无泄密跨平台检查器")
     require("config get` 读不到" in security, "未说明 .env 变量无法通过 config get 读取")
@@ -913,7 +913,7 @@ def validate_documents(
     require("真实重启电脑/服务器" in skill, "真实重启验收未提前预告")
     require("网关日志会记录聊天内容明文" in chinese_ux, "未披露网关日志留存聊天明文")
 
-    # V7.3.3 / V7.3.4 真人测试修复锁定
+    # 回归锁定：真人测试发现的问题
     require("名称不是 `default`" in skill and "全部 Hermes 命令都由同脚本的 `run`" in skill, "隔离验收未阻止写入 default Profile")
     unscoped_profile_command = re.compile(
         r"(?m)\bhermes (?:(?:doctor|status|logs|model|fallback|auth|tools|skills|mcp|cron|pairing)\b|config (?:get|set|path|env-path)\b|gateway (?:setup|run|install|start|stop|restart|status|uninstall)\b)"
@@ -933,7 +933,7 @@ def validate_documents(
     require("五步全览" in skill and "▶ 第3步" in skill, "进度规范缺少完整五步进度条")
     require("不得提模型名、测试日期" in skill and "不得主动罗列现在不能做的功能" in skill, "自我介绍仍可能泄露内部验收话术")
 
-    # V7.4.2 反抗式全量审查修复锁定
+    # 回归锁定：反抗式全量审查发现的问题
     require("hermes profile create wechatassistant --no-alias --no-skills" in skill and "不得使用 `--clone`" in skill, "普通新用户缺少隔离 Profile 生命周期")
     require("命名 Profile 单独使用仍不保证隔离模型凭据" in skill, "仍把命名 Profile 误当凭据隔离")
     require("全局共享" in model and "进程环境" in model and "共享 OAuth" in model, "模型认证缺少来源分类")
@@ -950,7 +950,7 @@ def validate_documents(
     require("图片、语音、视频和文件" in skill and "weixin/accounts" in security, "微信媒体与凭据缓存边界未披露")
     require("`{{...}}` 为零" in skill, "SOUL 写入缺少占位符清零门禁")
 
-    # V7.4.3 官方 v0.20.0 隔离实测修复锁定
+    # 回归锁定：官方 Hermes v0.20.0 隔离实测发现的问题
     require("hermes profile show <Profile>" in skill and "hermes profile show <Profile>" in setup, "Profile show 仍未使用位置参数")
     require("check_hermes_cli_contract.py" in skill and "官方干净 tag" in skill, "缺少当前 Hermes 干净根 CLI 能力闸")
     require("check_pre_qr_safety.py" in skill and "check_pre_qr_safety.py" in security, "扫码前缺少可执行安全门禁")
@@ -970,7 +970,7 @@ def validate_documents(
     require("resource_ledger_guard.py" in cloud and "preview-cleanup" in cloud and "verify-cleanup" in cloud and "只预览且没有删除原语" in cloud, "共享服务器清理缺少机器预览与核验")
     require("isolation_guard.py run-service" in cloud and "--expected-hermes-root <本轮专用Hermes根>" in cloud, "云端服务管理未绑定真实 HOME 与专用 Hermes 根")
 
-    # V7.4.21 对话直达微信、凭据顺序与向导默认动作修复锁定
+    # 回归锁定：对话直达微信、凭据顺序与向导默认动作
     require("任何本机 Hermes 或 gateway 读取之前" in skill and "目标不确定也进入受保护验收" in skill, "操作模式没有先于本机 Hermes 检测")
     require("配置存在只证明已配置" in skill and "真实中文回复" in skill, "配置状态仍可能冒充模型真实可用")
     require("模型探测可能新建权限过宽的 Profile 缓存" in skill and "模型探测成功后再运行一次 `apply_chat_safety_baseline.py`" in model, "模型探测后的运行时缓存权限未重新收紧")
@@ -992,7 +992,7 @@ def validate_documents(
     require("本文件中的命令与检查项全部由 Agent" in setup and "不要求普通用户打开终端" in setup, "Hermes 安装仍把终端操作推给用户")
     require("Qwen `~/.qwen`" in cloud and "最终 systemd gateway" in cloud, "云端 HOME 级 OAuth 与运行时一致性未披露")
 
-    # V7.4.21 云端 API key 原生隐藏输入与 macOS 可编辑输入栏修复锁定
+    # 回归锁定：云端 API key 原生隐藏输入与 macOS 可编辑输入栏
     require("观察到 Hermes 已进入掩码提示后" in skill and "用户只粘贴一次 Key" in skill, "主流程仍可能在掩码前取 Key 或要求第二次输入")
     require("禁止先从弹窗取 Key 再把它管道到尚未进入掩码状态的 SSH" in model, "模型文档未阻止早发 Key 回显")
     require("不输入 SSH、路径、启动命令或标签" in cloud and "存在保存回执时返回 `SAVED`" in cloud, "云端模型认证仍把标签或保存判断推给用户")
