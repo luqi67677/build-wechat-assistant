@@ -244,7 +244,7 @@ class WizardSourceFactTests(unittest.TestCase):
         soul = read("assets/SOUL.zh-CN.md")
         self.assertIn('"terminal"', contract)
         self.assertIn("当前没有启用实时查询", soul)
-        self.assertIn("不能为了报时自行启用终端", soul)
+        self.assertIn("只有「现在可用」列出并真实验证的时间、天气、新闻工具才能回答实时结果", soul)
 
     def test_22_weixin_credentials_and_media_cache_are_disclosed(self) -> None:
         source = (HERMES_INSTALL / "gateway" / "platforms" / "weixin.py").read_text(encoding="utf-8")
