@@ -32,6 +32,7 @@ class InstallAcceptanceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.contract = json.loads(read("references/flow-contract.json"))
+        cls.readme = read("README.md")
         cls.skill = read("SKILL.md")
         cls.setup = read("references/setup-guide.md")
         cls.install = read("references/install-skill.md")
@@ -146,6 +147,20 @@ class InstallAcceptanceTests(unittest.TestCase):
         self.assertIn("普通 ChatGPT", self.install)
         self.assertIn("Codex 本地任务", self.install)
         self.assertIn("Hermes", self.install)
+
+    def test_readme_hermes_install_uses_actual_profile_home(self) -> None:
+        self.assertIn("确认目标 Profile 的实际根目录", self.readme)
+        self.assertIn("不要把 `~/.hermes/skills/` 当作所有 Profile 的固定路径", self.readme)
+        self.assertNotIn(
+            "git clone https://github.com/luqi67677/build-wechat-assistant.git ~/.hermes/skills/build-wechat-assistant",
+            self.readme,
+        )
+
+    def test_readme_install_requires_content_and_trigger_acceptance(self) -> None:
+        self.assertIn("references/flow-contract.json", self.readme)
+        self.assertIn("assets/SOUL.zh-CN.md", self.readme)
+        self.assertIn("新会话能用", self.readme)
+        self.assertIn("只在列表里出现名称不算安装完成", self.readme)
 
     def test_12_local_service_is_absent_before_persona(self) -> None:
         lifecycle = self.contract["local_service_lifecycle"]
