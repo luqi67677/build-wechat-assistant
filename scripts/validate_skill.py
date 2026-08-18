@@ -11,6 +11,15 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 
+# Windows 控制台默认 GBK/CP1252，直接打印中文结果会 UnicodeEncodeError；
+# 统一重配为 UTF-8（带替换兜底），让验证器在任何平台都能输出。
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (OSError, ValueError):
+            pass
+
 from flow_policy import (
     SKILL_TITLE,
     VERSION,
