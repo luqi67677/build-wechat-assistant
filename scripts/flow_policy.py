@@ -892,6 +892,7 @@ def validate_documents(
     require("--codex-home <专用登录目录绝对路径>" in tools and "0700" in tools, "Codex MCP 没有显式绑定私有专用登录目录")
     require("npm 版 Codex" in tools and "--node <Node.js真实绝对路径>" in tools and "隔离 Gateway 不继承用户 PATH" in tools, "npm Codex 没有显式绑定 Node.js 运行时")
     require("mcp_servers.<名称>.timeout=1830" in tools and "执行器自身 `--timeout 1800`" in tools, "Codex MCP 超时没有覆盖真实长任务")
+    require("mcp_servers.<名称>.keepalive_interval=2000" in tools and "探活" in tools, "Codex MCP 缺少 keepalive_interval 大于工具超时的要求，Hermes 默认 180 秒探活会强杀长任务")
     require("只显示白名单内的缺失 scope 名称" in tools and "不回传飞书 CLI 原始失败输出" in tools, "飞书运行错误恢复可能泄露原始输出")
     require("Node.js 真实可执行文件" in tools and "任意可执行文件冒充 Node.js" in tools and "不能依赖 Agent 或隔离 Gateway 继承到的 `PATH`" in tools and "--node <Node.js真实绝对路径>" in tools, "飞书隔离运行时缺少显式 Node.js 路径或身份核验")
     require("登录或额度在任务期间失效" in tools and "不回传 Codex 原始输出" in tools, "Codex 运行错误缺少安全恢复说明")
