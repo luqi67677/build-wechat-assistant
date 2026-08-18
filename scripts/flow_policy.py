@@ -11,8 +11,8 @@ CONTRACT_PATH = "references/flow-contract.json"
 
 # 版本一致性门禁：以下版本必须与 SKILL.md、flow-contract.json 和
 # agents/openai.yaml 同步；验证器负责阻止漏改。
-VERSION = "0.4"
-SKILL_TITLE = f"# 2026-08-15 微信 AI 助手搭建 V{VERSION}"
+VERSION = "0.5"
+SKILL_TITLE = f"# 2026-08-18 微信 AI 助手搭建 V{VERSION}"
 
 
 def load_contract(root: Path) -> dict:
@@ -928,7 +928,7 @@ def validate_documents(
     require("主动状态陪同" in weixin and "报屏协议只作备用" in weixin, "微信连接仍把识别进度责任推给用户")
     require("已有 `WEIXIN_*` 标记只代表上一次配置" in weixin and "本轮启动后的新鲜状态变化" in weixin, "主动轮询仍会把旧配置误判为本轮完成")
     require("无法访问同一 Profile" in weixin and "报屏协议" in weixin, "无法观察状态时缺少安全陪同回退")
-    require("Select a platform to configure:" in weixin and "不是本 Skill 的 V0.4 直达路线" in weixin, "缺少误入全平台菜单的安全恢复")
+    require("Select a platform to configure:" in weixin and "不是本 Skill 的 V0.5 直达路线" in weixin, "缺少误入全平台菜单的安全恢复")
     require("用户不要滚动、不要按方向键、不要选 `Done`" in weixin, "仍可能让用户操作全平台菜单")
     require("微信连接成功" in weixin and "不表示第 4 步完成" in weixin, "未提醒扫码成功后仍需自动检查")
     require("五步全览" in skill and "▶ 第3步" in skill, "进度规范缺少完整五步进度条")

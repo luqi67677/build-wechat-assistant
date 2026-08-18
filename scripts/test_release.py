@@ -31,14 +31,14 @@ def make_fake_tree(root: Path) -> None:
         encoding="utf-8",
     )
     (root / "SKILL.md").write_text(
-        "# 2026-08-15 微信 AI 助手搭建 V0.4\n"
+        "# 2026-08-15 微信 AI 助手搭建 V0.5\n"
         "\n"
         "当前适配 Hermes Agent v0.20.0；历史版本 v0.4.1 不再支持。\n"
         "RFC 示例地址 192.0.2.1 与 203.0.113.9 仅作文档占位。\n"
         "正文中出现的发布日期 2026-08-15 不应被标题日期同步改写。\n",
         encoding="utf-8",
     )
-    (root / "VERSION").write_text("V0.4\n", encoding="utf-8")
+    (root / "VERSION").write_text("V0.5\n", encoding="utf-8")
 
 
 class NormalizeTests(unittest.TestCase):
@@ -86,7 +86,7 @@ class SyncTitleDateTests(unittest.TestCase):
 
             self.assertEqual(set(changed), {"SKILL.md", "scripts/flow_policy.py"})
             skill = (root / "SKILL.md").read_text(encoding="utf-8")
-            self.assertIn("# 2026-08-18 微信 AI 助手搭建 V0.4", skill)
+            self.assertIn("# 2026-08-18 微信 AI 助手搭建 V0.5", skill)
             # 正文中的同样日期不受影响
             self.assertIn("发布日期 2026-08-15 不应被标题日期同步改写", skill)
             policy = (root / "scripts" / "flow_policy.py").read_text(encoding="utf-8")
@@ -100,7 +100,7 @@ class SyncTitleDateTests(unittest.TestCase):
                 RELEASE.sync_title_date(root)
             today = date.today().isoformat()
             skill = (root / "SKILL.md").read_text(encoding="utf-8")
-            self.assertIn(f"# {today} 微信 AI 助手搭建 V0.4", skill)
+            self.assertIn(f"# {today} 微信 AI 助手搭建 V0.5", skill)
             policy = (root / "scripts" / "flow_policy.py").read_text(encoding="utf-8")
             self.assertIn(f'SKILL_TITLE = f"# {today} 微信 AI 助手搭建 V{{VERSION}}"', policy)
 
@@ -108,7 +108,7 @@ class SyncTitleDateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             make_fake_tree(root)
-            (root / "SKILL.md").write_text("# 微信 AI 助手搭建 V0.4\n", encoding="utf-8")
+            (root / "SKILL.md").write_text("# 微信 AI 助手搭建 V0.5\n", encoding="utf-8")
             with contextlib.redirect_stdout(io.StringIO()), self.assertRaises(SystemExit):
                 RELEASE.sync_title_date(root, "2026-08-18")
 
