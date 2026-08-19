@@ -325,7 +325,7 @@ hermes -p <Profile> fallback --help
 
 先检测当前 Hermes 版本、微信运行组件和系统能否提供不会回传内容的临时二维码窗口。2026-08-09 核验的官方 tag v2026.8.3 对应 Hermes v0.20.0；本 Skill 已在该官方干净 tag 的隔离临时根通过 `scripts/check_hermes_cli_contract.py`，但不把这项无模型、无扫码的 CLI 契约测试冒充真实微信验收。每台目标机器仍要对实际 Hermes 绝对路径重跑该检查器。当前 Hermes 的二维码登录函数需要真实 TTY；这是二维码显示载体的限制，不是让用户操作终端菜单的理由。
 
-在二维码登录和首次启动网关之前先设置并读取验证 `display.language=zh`。它只能翻译 Hermes 当前已经接入 i18n 的少量静态消息；v0.20.0 参考源码中仍有英文向导和系统提示，不能把设置成功误称为整个 CLI 或系统消息已经中文化。普通全新/已授权增量直接执行同一 Profile 的 `config set/get display.language`；受保护验收通过 `isolation_guard.py run ... -- -p <Profile> config ...`；云端全新/小号测试通过 `isolation_guard.py run-cloud ... -- -p <Profile> config ...`。推理、记忆和工作区不在此手抄设置，统一由第 2 步安全基线写入并由扫码前门禁复验。
+第 2 步安全基线必须已经写入并读取复验中文与安静显示配置：`display.language=zh`，全局及 Weixin 的工具进度、中间回复、长任务通知和迭代详情均关闭，后台进程通知关闭，自动重置通知关闭。它们用于阻止 `Working — N min`、`iteration N/M`、英文重置说明和脚本过程进入微信；缺一项就不得扫码或启动。`display.language=zh` 只能翻译 Hermes 当前已经接入 i18n 的少量静态消息；v0.20.0 参考源码中仍有英文向导和系统提示，不能把设置成功误称为整个 CLI 或系统消息已经中文化。普通全新/已授权增量由 `apply_chat_safety_baseline.py` 统一设置并复验；受保护验收与云端路线继续通过对应隔离 runner 执行同一基线，不得在这里手抄部分配置。
 
 - **本地路线**：macOS、Windows、Linux 桌面由 Agent 调用 `scripts/launch_trusted_handoff.py --kind weixin-setup`，它再运行 `scripts/setup_weixin_direct.py` 直达 Weixin。不得调用通用 `gateway setup`，不得出现全平台选择或权限选择菜单。
 - **Windows 路线**：不要求用户安装 Windows Terminal、PowerShell 扩展或其他第三方终端。Agent 使用系统创建的新控制台作为临时二维码显示窗；窗口必须保留标准输入输出，不能把二维码重定向到 Agent、日志或空设备。用户不输入命令，也不在窗口里选任何项目。

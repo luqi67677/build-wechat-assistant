@@ -28,8 +28,19 @@ from check_pre_qr_safety import (  # noqa: E402
 PLATFORMS = ("cli", "weixin")
 CONFIG_BASELINE = (
     ("approvals.mode", "smart"),
+    ("display.language", "zh"),
     ("display.show_reasoning", "false"),
     ("display.platforms.weixin.show_reasoning", "false"),
+    ("display.tool_progress", "off"),
+    ("display.platforms.weixin.tool_progress", "off"),
+    ("display.interim_assistant_messages", "false"),
+    ("display.platforms.weixin.interim_assistant_messages", "false"),
+    ("display.long_running_notifications", "false"),
+    ("display.platforms.weixin.long_running_notifications", "false"),
+    ("display.busy_ack_detail", "false"),
+    ("display.platforms.weixin.busy_ack_detail", "false"),
+    ("display.background_process_notifications", "off"),
+    ("session_reset.notify", "false"),
     ("memory.memory_enabled", "false"),
     ("memory.user_profile_enabled", "false"),
 )

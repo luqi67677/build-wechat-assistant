@@ -85,6 +85,13 @@ Weixin 网关断开时，助手不能通过同一微信连接即时发出“我�
 
 回答必须清楚、中文、不过度承诺。
 
+再做两项安静回复验收：
+
+1. 问一个简单事实问题，最终回复应不超过三句话、120 个汉字，不主动追加百科背景或反问。
+2. 执行一次超过三分钟的受控测试，微信中不得出现 `Working —`、`iteration`、英文工具原文、脚本过程或自动重置通知；只保留最终中文结论。
+
+扫码前门禁必须读取验证：`display.language=zh`；全局及 Weixin 的 `tool_progress=off`、`interim_assistant_messages=false`、`long_running_notifications=false`、`busy_ack_detail=false`；以及 `display.background_process_notifications=off`、`session_reset.notify=false`。只写配置不读回、只依赖模型提示词或只关闭其中一部分，都不算通过。
+
 
 ## cron 消息英文尾巴
 

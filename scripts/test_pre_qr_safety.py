@@ -41,8 +41,19 @@ class PreQrSafetyTests(unittest.TestCase):
             "platform_toolsets.weixin": ["clarify", "kanban"],
             "toolsets": ["hermes-cli"],
             "approvals.mode": "smart",
+            "display.language": "zh",
             "display.show_reasoning": False,
             "display.platforms.weixin.show_reasoning": False,
+            "display.tool_progress": "off",
+            "display.platforms.weixin.tool_progress": "off",
+            "display.interim_assistant_messages": False,
+            "display.platforms.weixin.interim_assistant_messages": False,
+            "display.long_running_notifications": False,
+            "display.platforms.weixin.long_running_notifications": False,
+            "display.busy_ack_detail": False,
+            "display.platforms.weixin.busy_ack_detail": False,
+            "display.background_process_notifications": "off",
+            "session_reset.notify": False,
             "memory.memory_enabled": False,
             "memory.user_profile_enabled": False,
             "terminal.cwd": str(self.workspace),
@@ -190,6 +201,29 @@ class PreQrSafetyTests(unittest.TestCase):
         code, payload, _ = self.run_main()
         self.assertEqual(code, 1)
         self.assertFalse(payload["checks"]["cli_reasoning_disabled"])
+
+    def test_english_or_noisy_chat_settings_are_rejected(self) -> None:
+        cases = {
+            "display.language": ("en", "simplified_chinese_selected"),
+            "display.tool_progress": ("all", "cli_tool_progress_disabled"),
+            "display.platforms.weixin.tool_progress": ("all", "weixin_tool_progress_disabled"),
+            "display.interim_assistant_messages": (True, "cli_interim_messages_disabled"),
+            "display.platforms.weixin.interim_assistant_messages": (True, "weixin_interim_messages_disabled"),
+            "display.long_running_notifications": (True, "cli_long_running_notifications_disabled"),
+            "display.platforms.weixin.long_running_notifications": (True, "weixin_long_running_notifications_disabled"),
+            "display.busy_ack_detail": (True, "cli_busy_ack_detail_disabled"),
+            "display.platforms.weixin.busy_ack_detail": (True, "weixin_busy_ack_detail_disabled"),
+            "display.background_process_notifications": ("all", "background_process_notifications_disabled"),
+            "session_reset.notify": (True, "session_reset_notifications_disabled"),
+        }
+        for key, (unsafe_value, failed_check) in cases.items():
+            with self.subTest(key=key):
+                original = self.values[key]
+                self.values[key] = unsafe_value
+                code, payload, _ = self.run_main()
+                self.values[key] = original
+                self.assertEqual(code, 1)
+                self.assertFalse(payload["checks"][failed_check])
 
     def test_memory_injection_is_rejected(self) -> None:
         self.values["memory.memory_enabled"] = True
