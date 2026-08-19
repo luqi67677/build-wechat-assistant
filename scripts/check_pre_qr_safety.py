@@ -275,8 +275,29 @@ def evaluate(profile: str, hermes: str, expected_root: Path) -> dict[str, bool]:
     platform_toolsets = _config_json(profile, hermes, "platform_toolsets.weixin")
     top_toolsets = _config_json(profile, hermes, "toolsets")
     approval_mode = _config_json(profile, hermes, "approvals.mode")
+    language = _config_json(profile, hermes, "display.language")
     cli_reasoning = _config_json(profile, hermes, "display.show_reasoning")
     reasoning = _config_json(profile, hermes, "display.platforms.weixin.show_reasoning")
+    tool_progress = _config_json(profile, hermes, "display.tool_progress")
+    weixin_tool_progress = _config_json(
+        profile, hermes, "display.platforms.weixin.tool_progress"
+    )
+    interim_messages = _config_json(profile, hermes, "display.interim_assistant_messages")
+    weixin_interim_messages = _config_json(
+        profile, hermes, "display.platforms.weixin.interim_assistant_messages"
+    )
+    long_running = _config_json(profile, hermes, "display.long_running_notifications")
+    weixin_long_running = _config_json(
+        profile, hermes, "display.platforms.weixin.long_running_notifications"
+    )
+    busy_ack_detail = _config_json(profile, hermes, "display.busy_ack_detail")
+    weixin_busy_ack_detail = _config_json(
+        profile, hermes, "display.platforms.weixin.busy_ack_detail"
+    )
+    background_notifications = _config_json(
+        profile, hermes, "display.background_process_notifications"
+    )
+    session_reset_notify = _config_json(profile, hermes, "session_reset.notify")
     memory_enabled = _config_json(profile, hermes, "memory.memory_enabled")
     user_profile_enabled = _config_json(profile, hermes, "memory.user_profile_enabled")
     workspace = _config_json(profile, hermes, "terminal.cwd")
@@ -309,6 +330,7 @@ def evaluate(profile: str, hermes: str, expected_root: Path) -> dict[str, bool]:
         "dedicated_workspace_private": workspace_is_safe(workspace),
         "model_and_profile_secret_stores_private": secret_stores_private,
         "approval_mode_safe": approval_mode in {"manual", "smart"},
+        "simplified_chinese_selected": language == "zh",
         "cli_tool_inventory_complete": cli_inventory_complete,
         "cli_only_clarify_enabled": cli_only_clarify,
         "cli_mcp_servers_absent": cli_mcp_absent,
@@ -323,6 +345,16 @@ def evaluate(profile: str, hermes: str, expected_root: Path) -> dict[str, bool]:
         "kanban_runtime_disabled": kanban_disabled,
         "cli_reasoning_disabled": cli_reasoning is False,
         "weixin_reasoning_disabled": reasoning is False,
+        "cli_tool_progress_disabled": tool_progress in {False, "off"},
+        "weixin_tool_progress_disabled": weixin_tool_progress in {False, "off"},
+        "cli_interim_messages_disabled": interim_messages is False,
+        "weixin_interim_messages_disabled": weixin_interim_messages is False,
+        "cli_long_running_notifications_disabled": long_running is False,
+        "weixin_long_running_notifications_disabled": weixin_long_running is False,
+        "cli_busy_ack_detail_disabled": busy_ack_detail is False,
+        "weixin_busy_ack_detail_disabled": weixin_busy_ack_detail is False,
+        "background_process_notifications_disabled": background_notifications in {False, "off"},
+        "session_reset_notifications_disabled": session_reset_notify is False,
         "builtin_memory_disabled": memory_enabled is False,
         "user_profile_injection_disabled": user_profile_enabled is False,
         "service_absent_and_gateway_stopped_before_qr": service_absent_and_gateway_stopped(profile, hermes),
