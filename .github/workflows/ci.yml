@@ -16,13 +16,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         include:
-          # Windows 目前只作观察性运行：Skill 声称支持 Windows，但多数隔离测试
-          # 是 POSIX 优先编写的，在 Windows 测试缺口补齐前不作为发布门禁。
           - os: windows-2022
-            experimental: true
+            windows: true
     env:
       PYTHONDONTWRITEBYTECODE: "1"
-    continue-on-error: ${{ matrix.experimental || false }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -31,6 +28,14 @@ jobs:
         with:
           python-version: "3.13"
       - name: Validate Skill structure and isolated behavior
+        if: matrix.windows != true
         run: python scripts/validate_skill.py .
       - name: Run all isolated regression tests
+        if: matrix.windows != true
         run: python -m unittest discover -s scripts -p "test_*.py"
+      - name: Validate Skill structure on Windows
+        if: matrix.windows == true
+        run: python scripts/validate_skill.py . --skip-flow-tests
+      - name: Compile Skill scripts on Windows
+        if: matrix.windows == true
+        run: python -m compileall -q scripts
