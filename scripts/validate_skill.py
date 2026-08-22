@@ -329,7 +329,9 @@ def validate_no_private_identifiers(release_text: str, failures: list[str]) -> N
 def run_flow_tests(root: Path, failures: list[str], hermes: Path | None) -> bool:
     env = {
         "PATH": os.environ.get("PATH", ""),
-        "PYTHONPATH": os.environ.get("PYTHONPATH", ""),
+        "PYTHONPATH": os.pathsep.join(
+            value for value in (str(root / "scripts"), os.environ.get("PYTHONPATH", "")) if value
+        ),
         "PYTHONDONTWRITEBYTECODE": "1",
     }
     if hermes is not None:
@@ -457,6 +459,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--hermes", type=Path, help="发布门禁使用的官方干净 Hermes 启动器绝对路径")
     parser.add_argument("--mcp-python", type=Path, help="目标 Hermes 安装中可导入 MCP SDK 的 Python 绝对路径")
     parser.add_argument("--node", type=Path, help="飞书运行时使用的 Node.js 真实绝对路径")
+    parser.add_argument("--skip-flow-tests", action="store_true", help="仅做结构与契约校验，不运行流程回归")
     return parser.parse_args(argv)
 
 
@@ -514,7 +517,7 @@ def main(argv: list[str] | None = None) -> int:
                 add_failure(failures, f"{relative} 缺少关键契约：{phrase}")
 
     validate_local_links(root, skill, failures)
-    source_facts_verified = run_flow_tests(root, failures, hermes)
+    source_facts_verified = False if args.skip_flow_tests else run_flow_tests(root, failures, hermes)
     hermes_version = run_hermes_contract(root, hermes, failures) if hermes else None
     mcp_runtime_versions = (
         run_optional_mcp_runtime(root, mcp_python, hermes, node, failures)
@@ -533,6 +536,8 @@ def main(argv: list[str] | None = None) -> int:
     print("PASS deterministic contracts and mutation regression tests")
     if hermes_version is not None:
         print(f"PASS isolated Hermes CLI contract: {hermes_version}")
+    elif args.skip_flow_tests:
+        print("NOTE flow regression tests UNVERIFIED by explicit request")
     elif source_facts_verified:
         print("NOTE local Hermes source facts passed; clean release CLI contract UNVERIFIED without --hermes")
     else:

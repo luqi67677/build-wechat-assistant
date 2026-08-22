@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import io
+import os
 import subprocess
 import tempfile
 import unittest
@@ -12,6 +13,7 @@ from unittest.mock import Mock
 from launch_feishu_oauth import FeishuOAuthError, _official_url, authorize, initialize_application
 
 
+@unittest.skipIf(os.name == "nt", "该集成测试使用 POSIX shell 假 CLI；Windows 运行时由真实 lark-cli.exe 验证")
 class LaunchFeishuOAuthTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
