@@ -33,7 +33,7 @@ jobs:
       - name: Diagnose asyncio import
         if: runner.os == 'Windows'
         continue-on-error: true
-        run: python -c "import sys; sys.path.insert(0, 'scripts'); import asyncio; print(asyncio.__file__)"
+        run: python -c "import unittest.mock; print('unittest.mock ok')"
       - name: Validate Skill structure and isolated behavior
         run: python scripts/validate_skill.py .
       - name: Run all isolated regression tests
