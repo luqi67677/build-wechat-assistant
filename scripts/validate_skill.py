@@ -369,7 +369,8 @@ def run_flow_tests(root: Path, failures: list[str], hermes: Path | None) -> bool
     )
     if result.returncode != 0:
         detail = (result.stderr or result.stdout).strip().splitlines()
-        summary = "\\n".join(detail[-12:]) if detail else "未知错误"
+        summary_lines = detail[:40] + (["..."] if len(detail) > 52 else []) + detail[-12:]
+        summary = "\\n".join(summary_lines) if detail else "未知错误"
         add_failure(failures, f"流程回归失败：{summary}")
     if hermes is not None and not source_facts_verified:
         add_failure(failures, f"指定 Hermes 的源码事实核验数量异常：{source_fact_count}/30")
