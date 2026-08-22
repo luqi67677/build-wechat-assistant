@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib.util
+import os
 import stat
 import tempfile
 import unittest
@@ -42,6 +43,7 @@ class HermesConsentContext:
         return SimpleNamespace(action="accept", data=None)
 
 
+@unittest.skipIf(os.name == "nt", "该集成测试使用 POSIX shell 假 CLI；Windows 运行时由真实 lark-cli.exe 验证")
 class ScopedFeishuTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
