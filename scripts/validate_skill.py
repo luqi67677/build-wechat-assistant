@@ -368,6 +368,16 @@ def run_flow_tests(root: Path, failures: list[str], hermes: Path | None) -> bool
     if result.returncode != 0:
         detail = (result.stderr or result.stdout).strip().splitlines()
         add_failure(failures, f"流程回归失败：{detail[-1] if detail else '未知错误'}")
+        diagnostic_lines = [
+            line for line in combined.splitlines()
+            if line.startswith("ERROR:")
+            or line.startswith("FAIL:")
+            or line.startswith("Traceback")
+            or "ModuleNotFoundError" in line
+            or "AssertionError" in line
+        ]
+        if diagnostic_lines:
+            print("\n".join(diagnostic_lines))
     if hermes is not None and not source_facts_verified:
         add_failure(failures, f"指定 Hermes 的源码事实核验数量异常：{source_fact_count}/30")
     if hermes is not None and skipped_count:
